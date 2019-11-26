@@ -79,15 +79,19 @@
 
 
 
-<meta name="description" content="1. 选择优化的数据类型数据类型进行选择的原则：  更小的通常更好 正确估计一个数据要占用多少空间，比如一个INT，如果只需要0，1两位数，那就使用TINYINT，而且UNSIGNED更好  简单就好 如果要进行Date类型的存储，那么使用MySql内建的类型Date存储，而不是使用字符串  尽量避免NULL NULL会让索引的建立、和值的统计更加复杂   整数类型 TINYINT：占用空间-8位">
+<meta name="description" content="1、Java内存模型基础1.1 两个关键问题线程之间如何通信及线程之间如何同步？线程之间的通信机制有两种:  共享内存 消息传递  java的并发采用的是共享内存模型 1.2 重排序 编译器优化的重排序：编译器在不改变但线程程序语义的前提下，可以改变语句的顺序 指令级并行的重排序:将多条指令重叠执行，如果不存在数据以来，就可以改变语句对应机器指令的执行顺序. 内存系统的重排序  12345grap">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Schema与数据类型优化">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;10&#x2F;MySQL&#x2F;Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BC%98%E5%8C%96&#x2F;index.html">
+<meta property="og:title" content="java并发&#x2F;java内存模型">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;27&#x2F;java%E5%B9%B6%E5%8F%91&#x2F;java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B&#x2F;index.html">
 <meta property="og:site_name" content="Masonluo">
-<meta property="og:description" content="1. 选择优化的数据类型数据类型进行选择的原则：  更小的通常更好 正确估计一个数据要占用多少空间，比如一个INT，如果只需要0，1两位数，那就使用TINYINT，而且UNSIGNED更好  简单就好 如果要进行Date类型的存储，那么使用MySql内建的类型Date存储，而不是使用字符串  尽量避免NULL NULL会让索引的建立、和值的统计更加复杂   整数类型 TINYINT：占用空间-8位">
+<meta property="og:description" content="1、Java内存模型基础1.1 两个关键问题线程之间如何通信及线程之间如何同步？线程之间的通信机制有两种:  共享内存 消息传递  java的并发采用的是共享内存模型 1.2 重排序 编译器优化的重排序：编译器在不改变但线程程序语义的前提下，可以改变语句的顺序 指令级并行的重排序:将多条指令重叠执行，如果不存在数据以来，就可以改变语句对应机器指令的执行顺序. 内存系统的重排序  12345grap">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-11-26T15:16:28.528Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;tva1.sinaimg.cn&#x2F;large&#x2F;006y8mN6gy1g9bxx7do6oj30qw0m7qg2.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;tva1.sinaimg.cn&#x2F;large&#x2F;006y8mN6gy1g9bxxfhti7j30tq0ejqh4.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;tva1.sinaimg.cn&#x2F;large&#x2F;006y8mN6gy1g9bxxn1xxcj30su0ehnbh.jpg">
+<meta property="og:updated_time" content="2019-11-26T17:10:57.910Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;tva1.sinaimg.cn&#x2F;large&#x2F;006y8mN6gy1g9bxx7do6oj30qw0m7qg2.jpg">
 
 
 
@@ -117,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/11/10/MySQL/Schema与数据类型优化/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/11/27/java并发/java内存模型/"/>
 
 
 
 
 
-  <title>Schema与数据类型优化 | Masonluo</title>
+  <title>java并发/java内存模型 | Masonluo</title>
   
 
 
@@ -250,7 +254,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/MySQL/Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BC%98%E5%8C%96/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/27/java%E5%B9%B6%E5%8F%91/java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Masonluo">
@@ -267,7 +271,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Schema与数据类型优化</h1>
+          <h1 class="post-title" itemprop="name headline">java并发/java内存模型</h1>
         
 
         <div class="post-meta">
@@ -279,8 +283,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-10T18:30:33+08:00">
-                2019-11-10
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-27T00:54:27+08:00">
+                2019-11-27
               </time>
             
 
@@ -289,28 +293,6 @@
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -339,64 +321,74 @@
       
 
       
-        <h2 id="1-选择优化的数据类型"><a href="#1-选择优化的数据类型" class="headerlink" title="1. 选择优化的数据类型"></a>1. 选择优化的数据类型</h2><p>数据类型进行选择的原则：</p>
+        <h1 id="1、Java内存模型基础"><a href="#1、Java内存模型基础" class="headerlink" title="1、Java内存模型基础"></a>1、Java内存模型基础</h1><h2 id="1-1-两个关键问题"><a href="#1-1-两个关键问题" class="headerlink" title="1.1 两个关键问题"></a>1.1 两个关键问题</h2><p><strong>线程之间如何通信及线程之间如何同步？</strong><br><br>线程之间的通信机制有两种:</p>
 <ul>
-<li><p>更小的通常更好</p>
-<p>正确估计一个数据要占用多少空间，比如一个INT，如果只需要0，1两位数，那就使用TINYINT，而且UNSIGNED更好</p>
-</li>
-<li><p>简单就好</p>
-<p>如果要进行Date类型的存储，那么使用MySql内建的类型Date存储，而不是使用字符串</p>
-</li>
-<li><p>尽量避免NULL</p>
-<p>NULL会让索引的建立、和值的统计更加复杂</p>
-</li>
+<li>共享内存</li>
+<li>消息传递</li>
 </ul>
-<h3 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h3><ul>
-<li><p>TINYINT：占用空间-8位</p>
-</li>
-<li><p>SMALLINT：占用空间-16位</p>
-</li>
-<li><p>MEDIUMINT：占用空间-24位 </p>
-</li>
-<li><p>INT：占用空间-32位</p>
-</li>
-<li><p>BIGINT：占用空间-64位</p>
-<p>数据类型如果不需要负数，就选择<strong>UNSIGNED</strong>属性，可以让数字存储的上限提高一倍。</p>
-<p>MySql可以为整形类型指定宽度，例如INT（11），但是对实际上的存储并没有什么意义，也是占用那么多范围，只是用来控制显示的字符个数</p>
-</li>
+<p>java的并发采用的是<strong>共享内存</strong>模型</p>
+<h2 id="1-2-重排序"><a href="#1-2-重排序" class="headerlink" title="1.2 重排序"></a>1.2 重排序</h2><ul>
+<li>编译器优化的重排序：编译器在不改变但线程程序语义的前提下，可以改变语句的顺序</li>
+<li>指令级并行的重排序:将多条指令重叠执行，如果不存在数据以来，就可以改变语句对应机器指令的执行顺序.</li>
+<li>内存系统的重排序</li>
 </ul>
-<h3 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h3><ul>
-<li>FLOAT：4字节</li>
-<li>DOUBLE: 8字节</li>
-<li>DECIMAL（n,m）</li>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">源代码--&gt;1.编译器优化重排序</span><br><span class="line">1.编译器优化重排序--&gt;2.指令并行重排序</span><br><span class="line">2.指令并行重排序--&gt;3.内存系统重排序</span><br><span class="line">3.内存系统重排序--&gt;最终序列</span><br></pre></td></tr></table></figure>
+<p><strong>*1属于编译器重排序</strong>，2，3属于处理器重排序*</p>
+<ul>
+<li>编译器重排序，JMM会禁止特定类型的重排序</li>
+<li>处理器重排序，插入内存屏障指令来禁止特定类型的重排序</li>
 </ul>
-<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><ul>
-<li>VARCHAR ：变长数据类型，比CHAR更加节省内存空间，仅仅是使用必要的空间，但是因为这样，导致update的时候可能会需要做额外的工作，也要使用额外的1到两个字节去存储字符串的长度</li>
-<li>CHAR：定长的，会自动消除空格，适合用来存储密码的MD5值，因为是定长的</li>
-<li>BINARY：存储二进制字符串</li>
-<li>VARBINARY：存储二进制字符串</li>
+<h2 id="1-3-内存屏障类型"><a href="#1-3-内存屏障类型" class="headerlink" title="1.3 内存屏障类型"></a>1.3 内存屏障类型</h2><table>
+<thead>
+<tr>
+<th>屏障类型</th>
+<th>指令示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LoadLoad Barriers</td>
+<td>Load1；LoadLoad;Load2</td>
+<td>确保Load数据的装载先于Load2及所有后续装载指令的装载</td>
+</tr>
+<tr>
+<td>StoreStore Barries</td>
+<td>Store1;StoreStore;Store2</td>
+<td>确保Store1数据对其他处理器可见(刷新到内存)先于Store2及所有后续存储指令的存储</td>
+</tr>
+<tr>
+<td>LoadStore Barries</td>
+<td>Load1;LoadStore;Store2</td>
+<td>确保Load1数据装载先于Store2及所有后续的存储指令刷新到内存</td>
+</tr>
+<tr>
+<td>StoreLoad Barries</td>
+<td>Store1</td>
+<td>StoreLoad</td>
+</tr>
+</tbody></table>
+<h2 id="1-4-happen-before原则"><a href="#1-4-happen-before原则" class="headerlink" title="1.4 happen-before原则"></a>1.4 happen-before原则</h2><ul>
+<li>单线程happen-before原则：在同一个线程中，书写在前面的操作happen-before后面的操作。</li>
+<li>锁的happen-before原则：同一个锁的unlock操作happen-before此锁的lock操作。</li>
+<li>volatile的happen-before原则：对一个volatile变量的写操作happen-before对此变量的任意操作(当然也包括写操作了)。</li>
+<li>happen-before的传递性原则：如果A操作 happen-before B操作，B操作happen-before C操作，那么A操作happen-before C操作。</li>
+<li>线程启动的happen-before原则：同一个线程的start方法happen-before此线程的其它方法。</li>
+<li>线程中断的happen-before原则：对线程interrupt方法的调用happen-before被中断线程的检测到中断发送的代码。</li>
+<li>线程终结的happen-before原则：线程中的所有操作都happen-before线程的终止检测。<br>对象创建的happen-before原则：一个对象的初始化完成先于他的finalize方法调用。</li>
+<li>传递性：如果A happens-before B，且B happens-before C，那么 A happends-before C</li>
 </ul>
-<h3 id="BLOB和TEXT类型"><a href="#BLOB和TEXT类型" class="headerlink" title="BLOB和TEXT类型"></a>BLOB和TEXT类型</h3><p>BLOB：采用二进制进行存储</p>
-<p>TEXT: 采用字符方式进行存储</p>
-<h3 id="使用枚举类型代替字符串"><a href="#使用枚举类型代替字符串" class="headerlink" title="使用枚举类型代替字符串"></a>使用枚举类型代替字符串</h3><p>  枚举类型的存储实际上是用整形存储，但是MySQL会在表的.frm文件中保存“数字-字符串”映射关系的查找表</p>
-<p>  尽量不要使用数字作为枚举常量，那会导致歧义。</p>
-<p>  枚举字段的排序是使用内部存储的整数而不是字符串来排序</p>
-<h2 id="2-数据库的三范式"><a href="#2-数据库的三范式" class="headerlink" title="2. 数据库的三范式"></a>2. 数据库的三范式</h2><ul>
-<li><p>第一范式：一个表中的每一个列必须是原子的，不能够再分成其他几列</p>
-</li>
-<li><p>第二范式：如果关系模式R满足第一范式，并且R的所有非主属性完全依赖于R的每一个候选关键属性，称R满足第二范式</p>
-</li>
-<li><p>第三范式：如果R是一个满足第一范式条件的关键模式，X是R的任意属性集，如果X非传递的依赖于R的任意一个候选关键字，称R满足第三范式</p>
-</li>
+<h2 id="1-5-as-if-serial语义"><a href="#1-5-as-if-serial语义" class="headerlink" title="1.5 as-if-serial语义"></a>1.5 as-if-serial语义</h2><blockquote>
+<p>不管怎么重排序，（单线程）执行结果不能被改变。</p>
+</blockquote>
+<h1 id="2、顺序一致性"><a href="#2、顺序一致性" class="headerlink" title="2、顺序一致性"></a>2、顺序一致性</h1><p>JMM对正确同步的多线程程序的内存一致性做了如下的保证:<strong>如果程序是正确同步的，程序的执行将具有顺序一致性——程序的执行结果于该程序在顺序一致性内存模型中的执行结果相同</strong></p>
+<h2 id="2-1-顺序一致性内存模型"><a href="#2-1-顺序一致性内存模型" class="headerlink" title="2.1 顺序一致性内存模型"></a>2.1 顺序一致性内存模型</h2><ul>
+<li>一个线程中所有操作都必须按照程序的顺序来执行</li>
+<li>（不管程序是否一致）所有线程都只能看到一个单一的操作执行顺序。在顺序一致性内存模型中，每个操作都必须原子执行且立刻对所有线程可见<br><img src="https://tva1.sinaimg.cn/large/006y8mN6gy1g9bxx7do6oj30qw0m7qg2.jpg" alt="image-20191127011025076"></li>
 </ul>
-<p>  <strong>码</strong></p>
-<p>  码是一个或多个属性的集合。</p>
-<p>  <strong>超码</strong></p>
-<p>  是一个或多个属性的集合，超码中的这些属性可以让我们在一个实体集中唯一地标识一个实体。</p>
-<p>  <strong>候选码</strong></p>
-<p>  候选码是极小的超码集，也就是它的任意真子集都不是超码，而他本身是超码。</p>
-<p>  <strong>主码</strong></p>
-<p>  主码是被选中用来在一个关系中区分不同元组的候选码。</p>
+<p>从上图可知，在任意时间点只有一个线程可以连接到内存，当多个线程并发执行时，图中开关装置把所有的线程的所有内存读/写操作串行化</p>
+<p>假设两个线程A，B并发执行，其中A线程有3个操作，它们在程序中的顺序是：A1-A2-A3。其中B线程也有3个操作，它们在程序中的顺序是：B1-B2-B3。</p>
+<p>假设两个线程使用监视器锁来正确同步：<br><img src="https://tva1.sinaimg.cn/large/006y8mN6gy1g9bxxfhti7j30tq0ejqh4.jpg" alt="image-20191127011042195"></p>
+<p>假设这两个线程没有做同步：<br><img src="https://tva1.sinaimg.cn/large/006y8mN6gy1g9bxxn1xxcj30su0ehnbh.jpg" alt="image"></p>
 
       
     </div>
@@ -421,8 +413,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/11/10/MySQL/Mysql%E5%9F%BA%E7%A1%80/" rel="next" title="MySQL基础">
-                <i class="fa fa-chevron-left"></i> MySQL基础
+              <a href="/2019/11/27/%E7%AE%97%E6%B3%95/OJ/%E7%9F%B3%E5%AD%90%E5%88%92%E5%88%86%E9%97%AE%E9%A2%98/" rel="next" title="石子划分问题">
+                <i class="fa fa-chevron-left"></i> 石子划分问题
               </a>
             
           </div>
@@ -430,10 +422,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/11/11/MySQL/%E7%B4%A2%E5%BC%95/" rel="prev" title="索引">
-                索引 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -569,7 +557,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-选择优化的数据类型"><span class="nav-number">1.</span> <span class="nav-text">1. 选择优化的数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#整数类型"><span class="nav-number">1.1.</span> <span class="nav-text">整数类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实数类型"><span class="nav-number">1.2.</span> <span class="nav-text">实数类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串类型"><span class="nav-number">1.3.</span> <span class="nav-text">字符串类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLOB和TEXT类型"><span class="nav-number">1.4.</span> <span class="nav-text">BLOB和TEXT类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用枚举类型代替字符串"><span class="nav-number">1.5.</span> <span class="nav-text">使用枚举类型代替字符串</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-数据库的三范式"><span class="nav-number">2.</span> <span class="nav-text">2. 数据库的三范式</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1、Java内存模型基础"><span class="nav-number">1.</span> <span class="nav-text">1、Java内存模型基础</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-两个关键问题"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 两个关键问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-重排序"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 重排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-内存屏障类型"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 内存屏障类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-happen-before原则"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 happen-before原则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-as-if-serial语义"><span class="nav-number">1.5.</span> <span class="nav-text">1.5 as-if-serial语义</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2、顺序一致性"><span class="nav-number">2.</span> <span class="nav-text">2、顺序一致性</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-顺序一致性内存模型"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 顺序一致性内存模型</span></a></li></ol></li></ol></div>
             
 
           </div>
