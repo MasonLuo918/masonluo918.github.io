@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next pisces use-motion" lang="zh-Hans">
+<html class="theme-next gemini use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -92,7 +92,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Pisces',
+    scheme: 'Gemini',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -852,6 +852,446 @@
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/07/%E8%BF%90%E8%BE%93%E5%B1%82/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/07/%E8%BF%90%E8%BE%93%E5%B1%82/" itemprop="url">运输层</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-07T18:29:05+08:00">
+                2019-11-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <hr>
+<hr>
+<h1 id="OSI七层协议"><a href="#OSI七层协议" class="headerlink" title="OSI七层协议"></a>OSI七层协议</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">7.应用层 --&gt; 6.表示层</span><br><span class="line">6.表示层 --&gt; 5.会话层</span><br><span class="line">5.会话层 --&gt; 4.运输层 </span><br><span class="line">4.运输层 --&gt; 3.网络层</span><br><span class="line">3.网络层 --&gt; 2.数据链路层</span><br><span class="line">2.数据链路层 --&gt; 1.物理层</span><br></pre></td></tr></table></figure>
+
+<h1 id="TCP-IP体系结构"><a href="#TCP-IP体系结构" class="headerlink" title="TCP/IP体系结构"></a>TCP/IP体系结构</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">应用层TELNET,FTP,SMTP --&gt; 运输层TCP或UDP</span><br><span class="line">运输层TCP或UDP --&gt; 网际层ip</span><br><span class="line">网际层ip --&gt; 网络接口层</span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="五层协议"><a href="#五层协议" class="headerlink" title="五层协议"></a>五层协议</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">应用层 --&gt; 运输层</span><br><span class="line">运输层 --&gt; 网络层</span><br><span class="line">网络层 --&gt; 数据链路层</span><br><span class="line">数据链路层 --&gt; 物理层</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="1运输层概述"><a href="#1运输层概述" class="headerlink" title="1运输层概述"></a>1运输层概述</h2><ul>
+<li>复用：发送方不同的应用进程都可以使用 同一个运输层协议进行数据的传输</li>
+<li>分用：接收方的运输层能够在剥去报文首部之后能正确的将数据交付给目的进程</li>
+</ul>
+<h3 id="1-1-进程之间的通信"><a href="#1-1-进程之间的通信" class="headerlink" title="1.1 进程之间的通信"></a>1.1 进程之间的通信</h3><ul>
+<li><p>为什么需要运输层</p>
+<p>1.IP协议只是标明了两台主机的IP地址，是主机跟主机之间的通信</p>
+<p>2.主机之间的通信细化来说是进程之间的通信，通信的真正端点并不是主机而是主机中的进程</p>
+<p>3.网络层为主机之间提供逻辑通信，运输层为应用程序之间提供端到端的逻辑通信</p>
+<h3 id="1-2-两个主要协议"><a href="#1-2-两个主要协议" class="headerlink" title="1.2 两个主要协议"></a>1.2 两个主要协议</h3></li>
+</ul>
+<ol>
+<li><p>用户数据报协议UDP(User Datagram Protocol)</p>
+<p>UDP在传送数据之前不需要先建立连接，远程主机在收到UDP报文的时候，不需要给出任何确认</p>
+</li>
+<li><p>传输控制协议TCP(Transmission Control Protocol)</p>
+<p>TCP提供面向连接的服务，在传送数据之前必须先建立连接，数据传送结束后要释放连接</p>
+</li>
+</ol>
+<h3 id="1-3-运输层的端口"><a href="#1-3-运输层的端口" class="headerlink" title="1.3 运输层的端口"></a>1.3 运输层的端口</h3><ul>
+<li><p>服务器使用的端口号</p>
+<ul>
+<li><p>熟知端口号（系统端口号） 0 - 1023</p>
+</li>
+<li><p>登记端口号 1024 - 19151</p>
+</li>
+</ul>
+</li>
+<li><p>客户端使用的端口号</p>
+<ul>
+<li>数值为49152 - 65535<h2 id="2-用户数据报协议UDP"><a href="#2-用户数据报协议UDP" class="headerlink" title="2 用户数据报协议UDP"></a>2 用户数据报协议UDP</h2></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-1-UDP概述"><a href="#2-1-UDP概述" class="headerlink" title="2.1 UDP概述"></a>2.1 UDP概述</h3><ul>
+<li><p>无连接</p>
+</li>
+<li><p>尽最大努力交付（不保证可靠交付）</p>
+</li>
+<li><p>面向报文的</p>
+</li>
+<li><p>没有阻塞控制</p>
+</li>
+<li><p>支持一对一，一对多，多对一和多对多交互通信</p>
+</li>
+<li><p>UDP首部开销小，只有8个字节</p>
+</li>
+</ul>
+<h2 id="2-2-UDP首部格式"><a href="#2-2-UDP首部格式" class="headerlink" title="2.2 UDP首部格式"></a>2.2 UDP首部格式</h2><p>  UDP首部只有四个字段，一共八个字节，每个字段的长度都是2个字节</p>
+<ul>
+<li><p>源端口 </p>
+</li>
+<li><p>目的端口</p>
+</li>
+<li><p>长度</p>
+</li>
+<li><p>检验和</p>
+</li>
+</ul>
+<h2 id="3-传输控制协议TCP"><a href="#3-传输控制协议TCP" class="headerlink" title="3 传输控制协议TCP"></a>3 传输控制协议TCP</h2><h3 id="3-1-特点"><a href="#3-1-特点" class="headerlink" title="3.1 特点"></a>3.1 特点</h3><ul>
+<li>面向连接的运输层协议</li>
+<li>每一条连接只能由两个端点 , 只能是<strong>点对点</strong>连接</li>
+<li>可靠交付</li>
+<li>全双工通信<br>TCP允许通信双方的应用进程在任何时候都能发送数据，TCP连接的两端都设有发送缓存和接收缓存，用来临时存放双向通信的数据</li>
+<li>面向字节流<h3 id="3-2-连接"><a href="#3-2-连接" class="headerlink" title="3.2 连接"></a>3.2 连接</h3></li>
+<li>套接字socket=（IP地址: 端口号)</li>
+<li>TCP连接::={socket1, socket2} = {(IP1, port1),(IP2,port2})}<h2 id="4-可靠传输工作原理"><a href="#4-可靠传输工作原理" class="headerlink" title="4 可靠传输工作原理"></a>4 可靠传输工作原理</h2></li>
+</ul>
+<p>** 理想的传输条件:**</p>
+<ul>
+<li>传输信道不发生差错</li>
+<li>不管发送方以多快的速度发送数据，接收方总是来得及处理收到的数据<h3 id="4-1-停止等待协议"><a href="#4-1-停止等待协议" class="headerlink" title="4.1 停止等待协议"></a>4.1 停止等待协议</h3></li>
+</ul>
+<ol>
+<li>无差错情况</li>
+<li>超时重传</li>
+<li>确认丢失和确认迟到<br><img src="/Users/belle/Documents/markdown%E6%96%87%E6%A1%A3/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/%E5%9B%BE%E7%89%87/image-20191107192709424.png" alt="image-20191107192709424"></li>
+</ol>
+<p>![image-20191107193046860](/Users/belle/Library/Application Support/typora-user-images/image-20191107193046860.png)</p>
+<ol start="4">
+<li>信道利用率<br>假设A和B之间有一条直通的信道来传送分组:<ol>
+<li>A发送分组所需要的时间是TD，显然，TD等于分组长度除以数据率。</li>
+<li>假设B发送确认分组需要时间TA</li>
+<li>那么A在经过时间(TD + RTT + TA)后就可以在发送一个分组, 这里的RTT是往返时间</li>
+<li>因为只是TD内用来发送有用的数据 ，所以信道利用率U= TD / (TD +. RTT + TA)</li>
+<li>如果往返时间RTT为20ms, 分组长度为1200bit, 发送速率为1Mbit/s，则信道利用率为U=5.66%</li>
+</ol>
+</li>
+</ol>
+<p>  <strong>由上可见，为了提高传输效率，发送方可以不使用 低效率的停止等待 协议 ，而是采用流水线传输。流水线传输就是发送方可连续发送多个分组 ，不必每发完一个分组就停顿下来等待对方的确认</strong></p>
+<p> 当使用流水线传输时，就需要了解<strong>连续ARQ协议</strong>和<strong>滑动窗口协议</strong></p>
+<h2 id="4-2-连续ARQ协议"><a href="#4-2-连续ARQ协议" class="headerlink" title="4.2 连续ARQ协议"></a>4.2 连续ARQ协议</h2><img src="运输层/image-20191107195051665.png" alt="image-20191107195051665" style="zoom:50%;" />
+
+<p><strong>图a表示发送方维持的发送窗口，意义在于：位于发送窗口的5个分组都可以直接连接发送出去，无需等待对方的确认</strong></p>
+<p>图中还有一个时间坐标，分组时按照分组序号从小到大发送的</p>
+<blockquote>
+<p>连续ARQ协议规定，发送方每收到一个确认，就把发送窗口向前滑动一个分组的位置，图b表示发送方收到了对第1个分组的确认，于是把发送窗口向前移动一个分组的位置。如果原来已经发送了前面5个分组，那么现在就可以发送窗口内的第6个分组了</p>
+</blockquote>
+<blockquote>
+<p>接收方一般都是采用累计确认的方式，这就是说，接收方不必对收到的分组逐个发送确认，而是在收到几个分组后，对按序到达的最后一个分组发送确认，这就表示，到这个分组为止的所有分组都已经正确收到了</p>
+</blockquote>
+<p>使用累计确认有如下特点:</p>
+<ul>
+<li><p>容易实现，即使确认丢失也不必重传</p>
+</li>
+<li><p>不能像发送方反映出接收方已经正确收到的所有分组的信息</p>
+</li>
+</ul>
+<h2 id="5-5-TCP报文段的首部格式"><a href="#5-5-TCP报文段的首部格式" class="headerlink" title="5.5 TCP报文段的首部格式"></a>5.5 TCP报文段的首部格式</h2><p>![image-20191107195939947](/Users/belle/Library/Application Support/typora-user-images/image-20191107195939947.png)</p>
+<p> <em>最小为20个字节，后面有4n字节是根据需要而增加的选项</em> </p>
+<ul>
+<li><p>源端口和目的端口：各占两个字节</p>
+</li>
+<li><p>序号: 4个字节，又叫报文段序号，指的是本报文段所发送的数据的第一个字节的序号，例如：一报文段的序号字段值为301，而携带的数据共有100字节，这就表ing，本报文段的第一个字节的序号应该是从301开始，最后一个字节的序号是400，显然，下一个报文段应该从401开始</p>
+</li>
+<li><p>确认号,4字节， 期望收到对方下一个报文段的第一个数据字节的序号 ，例如，B正确收到A发送过来的一个报文段，其序号字段值为501，而数据长度是200字节，序号（501-700），那么B期望收到A的下一个数据序号 是701，于是B在发送给A的确认报文段中把确认号置为701</p>
+<blockquote>
+<p>若确认号 = N，则表明，到序号N-1为止的所有数据都已经正确收到</p>
+</blockquote>
+</li>
+<li><p>数据偏移 占4位，表明TCP报文的首部长度，单位为32位字，也就是4字节长为单位，所以TCP能表明的最大首部长度为4 * 15. = 60字节</p>
+</li>
+<li><p>保留，未使用，置0</p>
+</li>
+<li><p>6个控制位</p>
+<ol>
+<li><p>紧急URG，当URG=1，表明这个报文段有重要数据，不需要排队传送</p>
+</li>
+<li><p>确认ACK 仅仅当ACK=1时，确认号字段才有效。TCP规定，在连接建立后所有传送的报文段都需要把ACK置为1</p>
+</li>
+<li><p>推送PSH(PuSH) 当两个应用程序进行交互式通信，有时一端的应用程序希望在键入一个命令就立刻能收到回应，则可以将PSH=1，不再等到TCP缓存满了之后再交付</p>
+</li>
+<li><p>复位RST 当RST=1，则表明连接出现严重差错，必须释放连接之后重新建立连接</p>
+</li>
+<li><p>同步SYN 在连接建立时用来同步序号，当SYN=1而ACK=0时，表明这是一个连接请求报文段，对方若同意建立连接，则</p>
+</li>
+<li><p>应该在响应报文段中使用SYN=1和ACK=1。</p>
+</li>
+<li><p>终止FIN 用来释放一个连接，当FIN=1时，表明此报文段的发送方的数据已经发送完毕，并且要求释放运输连接</p>
+</li>
+</ol>
+</li>
+<li><p>窗口 占用2字节，窗口值是【0， 2^16  - 1】。窗口指的是发送本报文段的一方的接受窗口。窗口值告诉对方，从本报文段首部中的确认号算起，接收方目前允许对方发送的数据量（字节为单位）。因为接收方的数据缓存空间是有限的，窗口值作为接收方让发送方设置其发送窗口的依据</p>
+</li>
+<li><p>检验和 2字节</p>
+</li>
+<li><p>紧急指针 2字节，仅仅在URG=1才有效，指出本报文段中的紧急数据的字节数</p>
+</li>
+</ul>
+<p><strong>MSS:最大报文段长度，指的是数据字段的最大长度,不包括TCP首部</strong></p>
+<h2 id="6-TCP可靠传输的实现"><a href="#6-TCP可靠传输的实现" class="headerlink" title="6 TCP可靠传输的实现"></a>6 TCP可靠传输的实现</h2><h3 id="6-1-以字节为单位的滑动窗口"><a href="#6-1-以字节为单位的滑动窗口" class="headerlink" title="6.1 以字节为单位的滑动窗口"></a>6.1 以字节为单位的滑动窗口</h3><blockquote>
+<p>《计算机网络》 p221</p>
+</blockquote>
+<h3 id="6-2-超时重传时间的选择"><a href="#6-2-超时重传时间的选择" class="headerlink" title="6.2 超时重传时间的选择"></a>6.2 超时重传时间的选择</h3><ul>
+<li><p>RTT 报文往返时间</p>
+</li>
+<li><p>RTTs 平滑的往返时间</p>
+<p>$新的RTTs = (1 - a) * (旧的RTTs) + a * 新的RTT样本, a建议取为0.125$</p>
+</li>
+<li><p>RTO(Retransmission Time-Out) 超时重传时间<br>$RTO = RTTs + 4 * RTTd$</p>
+</li>
+<li><p>RTTd是RTT的偏差甲醛平均值，它与RTTs和新的RTT样本之差有关</p>
+<p>$新的RTTd = （1 - B) * 旧的RTTd —— B * |RTTs - 新的RTT样本|$</p>
+</li>
+</ul>
+<h3 id="6-3-选择确认SACK"><a href="#6-3-选择确认SACK" class="headerlink" title="6.3 选择确认SACK"></a>6.3 选择确认SACK</h3><blockquote>
+<ul>
+<li><input disabled="" type="checkbox"> 如果收到的报文无差错，只是未按序号，中间还 缺少一些序号的数据，那么能否设法只传送缺少的数据而不传送已经正确到达接收方的数据？</li>
+</ul>
+</blockquote>
+<img src="运输层/image-20191107210146526.png" alt="image-20191107210146526" style="zoom:50%;" />
+
+<p>如图片所示，序号1-1000收到了，但是序号1001-1500没有收到，接下来也是如此 。也就是说，接收方收到了和前面的字节流不连续的两个字节快，如果这些字节的序号都在接受窗口之内，那么接收方就先收下这些数据，但要把这些信息准确的告诉对方，使对方不要重复发送这些已经收到的数据</p>
+<p>和前后每一个字节块不连续的每一个字节块都有两个边界，L1 和R1，如果要使用选择确认SACK，那么必须要在TCP首部选项中加上“允许SACK”的选项，而且必须双方都商定好。由于首部选型长度最多只有40个字节，每一个边界就要用掉4个字节，由此最多只能指名4个字节块的边界信息，因为4个字节块需要用到32个字节进行描述，另外还需要 两个字节，一个字节用来指名SACK选项，另外一个指明SACK选型长度</p>
+<h2 id="7-TCP的流量控制"><a href="#7-TCP的流量控制" class="headerlink" title="7 TCP的流量控制"></a>7 TCP的流量控制</h2><h3 id="7-1-利用滑动窗口进行流量控制"><a href="#7-1-利用滑动窗口进行流量控制" class="headerlink" title="7.1 利用滑动窗口进行流量控制"></a>7.1 利用滑动窗口进行流量控制</h3><blockquote>
+<p>发送方的发送窗口不能超过接收方给出的接受窗口的数值(TCP窗口单位是字节，不是报文段)</p>
+</blockquote>
+<p>问题：如果B向A发送的零窗口报文段不久后，B的接受缓存又有了空间，那么B向A发送rwnd=400的报文段，然而这个报文段丢失了，A收不到B的信息，B也一直等待A发过来的信息，这样会导致一个死锁的局面。</p>
+<p>解决方法:TCP为每一个连接设置一个持续计数器，TCP连接的一方接收到对方的零窗口通知，就启动持续计数器，若计数器设置的时间到了，就向对方发送一个零窗口<strong>探测报文</strong> （携带一个字节的数据）.</p>
+<h3 id="7-2-TCP的传输效率"><a href="#7-2-TCP的传输效率" class="headerlink" title="7.2 TCP的传输效率"></a>7.2 TCP的传输效率</h3><p>考虑三种机制将报文发送出去:</p>
+<ul>
+<li>TCP维持一个变量，它等于 MSS，最大报文段长度，只要缓存存放的数据到达MSS，就发送出去</li>
+<li>发送方的应用进程指名要求发送报文段，支持PUSH操作</li>
+<li>发送方的一个计时器期限 到了，就把已有的缓存装成一个报文段发送出去(不能超过MSS)</li>
+</ul>
+<blockquote>
+<p>Nagle算法: 发送应用进程要把发送的数据逐个字节送到TCP的发送缓存，则发送方就把第一个数据字节先发送出去，把后面到达的数据字节都缓存起来。若发送方收到对第一个数据字符确认后，再把发送缓存中的所有数据装成一个报文段发送出去，同时继续对随后到达的数据进行缓存。只有在收到对前一个报文段的确认后才继续发送下一个报文段。 另外，当到达的数据已经达到发送窗口大小的一半或者已经 达到报文段的最大长度时，就立刻发送一个报文段</p>
+</blockquote>
+<h2 id="8-TCP的拥塞控制"><a href="#8-TCP的拥塞控制" class="headerlink" title="8 TCP的拥塞控制"></a>8 TCP的拥塞控制</h2><h3 id="8-1-拥塞控制的一般原理"><a href="#8-1-拥塞控制的一般原理" class="headerlink" title="8.1 拥塞控制的一般原理"></a>8.1 拥塞控制的一般原理</h3><blockquote>
+<p>拥塞: 当对网络中某一个资源的需求超过了该资源所能提供的可用部分，网络的性能就回变差，这种情况就叫做拥塞</p>
+</blockquote>
+<p>$\sum对资源的需求 &gt; 可用资源$</p>
+<ul>
+<li><p>拥塞控制： 防止过多的数据注入到网络中，这样可以使得网络中的路由器或者链路不致过载</p>
+<p> 进行拥塞控制的两种方式</p>
+<ul>
+<li>开环控制 : 设计网络的时候事先将有关发生拥塞的因素考虑周到，力求网络在工作的时候不产生拥塞，但一旦整个系统运行起来，就不再中途进行改正了</li>
+<li>闭环控制——基于反馈环路的概念:<ul>
+<li>监测网络系统以便监测到拥塞发生在何处，何时</li>
+<li>把拥塞发生的信息传送到可采取行动的地方</li>
+<li>调整网络系统的运行以便解决出现的问题</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="8-2-TCP拥塞控制的方法"><a href="#8-2-TCP拥塞控制的方法" class="headerlink" title="8.2 TCP拥塞控制的方法"></a>8.2 TCP拥塞控制的方法</h3><ol>
+<li><p>慢开始和拥塞避免</p>
+<p>发送方维持一个叫做拥塞窗口的状态变量，拥塞窗口的大小取决于网络的拥塞成都，并且动态在变化，发送方让自己的发送窗口等于拥塞窗口.</p>
+<p><strong>判断网络拥塞的依据就是出现了超时</strong></p>
+<ul>
+<li><p>慢开始算法</p>
+<ul>
+<li>由小到大逐渐增大发送窗口</li>
+<li>在在刚刚开始发送报文段的时候，先把初始拥塞窗口cwnd设置为1至2个发送方的最大报文段SMSS，但具体的规定如下:<ol>
+<li>若SMSS &gt; 2190字节，则设置初始拥塞窗口cwnd=2*SMSS字节，且不得超过两个报文段</li>
+<li>若SMSS &gt; 1095个字节，且&lt; 2190字节，则设置初始拥塞窗口cwnd=3*SMSS字节，且不得超过3个报文段</li>
+<li>若SMSS &lt;= 1095个字节，则设置初始拥塞窗口cwnd=4*SMSS字节，且不得超过4个报文段</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>拥塞避免算法</p>
+<blockquote>
+<p>让拥塞窗口cwnd缓慢的增大，即每经过一个往返时间RTT就把发送方的拥塞窗口cwnd加1</p>
+</blockquote>
+</li>
+<li><p>快重传算法</p>
+<blockquote>
+<p>要求接收方不要等待自己发送数据时才携带确认，而是立即发送确认，即使收到了失序的报文段也要立即发出对已收到的 重复确认</p>
+<p>发送方只要一连收到 3个重复 确认，就立即进行快重传</p>
+</blockquote>
+ <img src="运输层/image-20191108163315299.png" alt="image-20191108163315299" style="zoom:50%;" />
+</li>
+<li><p>快恢复算法</p>
+<blockquote>
+<p>将慢开始门限调整为ssthresh=cwnd/2， cwnd=ssthresh</p>
+</blockquote>
+</li>
+</ul>
+<p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108162832142.png" alt="image-20191108162832142"></p>
+</li>
+</ol>
+<h2 id="9-TCP的远程连接管理"><a href="#9-TCP的远程连接管理" class="headerlink" title="9 TCP的远程连接管理"></a>9 TCP的远程连接管理</h2><p>运输连接有三个阶段:  连接建立，数据传送，连接释放</p>
+<p>在TCP连接建立过程要解决三个问题:</p>
+<ul>
+<li>每一方能够确知对方的存在</li>
+<li>允许双方协商一些参数</li>
+<li>能够对运输实体资源进行分配 </li>
+</ul>
+<p>主动发起连接建立的应用进程叫做客户，被动等待连接的叫做服务器</p>
+<h3 id="9-1-TCP连接的建立-三次握手"><a href="#9-1-TCP连接的建立-三次握手" class="headerlink" title="9.1 TCP连接的建立(三次握手)"></a>9.1 TCP连接的建立(三次握手)</h3><ul>
+<li>SYN：同步标志位</li>
+<li>seq：序号</li>
+<li>ack：确认号，希望收到的下一个序号</li>
+<li>ACK：确认标志位，ACK=1时，ack才有效</li>
+</ul>
+<p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108165028663.png" alt="image-20191108165028663"></p>
+<ul>
+<li>一开始，B的TCP服务器先创建传输控制块TCP，准备接受客户进程的连接请求，然后服务器进程就处于LISTEN状态，等待连接</li>
+<li>A的TCP客户进程也是首先创建传输控制模块TCB，然后在打算建立TCP连接时，向B发送一个连接请求报文段，这时<strong>首部SYN=1，同时ACK=0，表明这是一个连接建立的请求</strong>, TCP规定，SYN=1时，不能携带数据，但是要<strong>消耗掉一个序号</strong>，TCP客户进程进入<strong>SYN-SENT（同步已发送）状态</strong></li>
+<li>B收到连接请求报文的时候，如果同意建立，则向A发送确认，在确认报文段应该把SYN和ACK置1，确认号是ack=x+1，同时也为自己选择一个初始序号seq=y ，这时TCP服务器进程进入SYN-RCVD状态</li>
+<li>TCP客户进程收到B的确认后，还要向B给出确认，确认报文段的ACK置1，确认号ack=y+1，而自己的序号seq=x+1, TCP标准规定，ACK报文段可以携带数据，如果不携带数据则不消耗序号，这时，TCP连接已经建立，A进入<strong>ESTABLISHED状态（已经建立连接）</strong></li>
+<li>当B收到A的确认时，也 进入<strong>ESTABLISHED状态（已经建立连接）</strong></li>
+</ul>
+<p>上述的过程就叫做<strong>三报文握手</strong>， 如果B发送给A的报文段拆分成两个报文段，也就是确认报文段(ACK=1，ack=x+1), 然后在发送同步报文段(SYN=1,seq=y)，这样就变成了<strong>四报文握手</strong></p>
+<blockquote>
+<p>为什么要三次握手，而不是两次握手就可以了呢?</p>
+</blockquote>
+<p>*<em>主要是为了防止</em>已失效连接请求报文<em>突然又传送到了B，因而产生了错误 *</em></p>
+<p>考虑这种情况（正常）：</p>
+<ol>
+<li>A发送连接请求，但是因为连接请求报文丢失未收到确认，于是A再次重传一次连接请求 </li>
+<li>B给A发送确认，然后建立了连接</li>
+<li>数据传送完毕，释放连接</li>
+</ol>
+<p>考虑这种情况(异常):</p>
+<ol>
+<li><p>A发出的第一个连接请求没有丢失，只是在某一个网络结点中长时间滞留了，以致延误到连接释放以后的某个时间才到达B</p>
+</li>
+<li><p>然后B收到这个失效的连接请求报文段时候，误以为A又要建立一次新的连接，向A发送确认报文段，同意建立连接。假设不采用报文握手，那么B就进入了连接建立的状态</p>
+</li>
+<li><p>A并没有发送建立的请求，不理会B的确认，也不向B发送数据，这样就导致B以为连接已经建立，正在等待运输资源，所以会浪费掉B的资源</p>
+<p>所以，采用三次握手可以避免上述现象的发生</p>
+</li>
+</ol>
+<h3 id="9-2-TCP连接时释放（四次挥手）"><a href="#9-2-TCP连接时释放（四次挥手）" class="headerlink" title="9.2  TCP连接时释放（四次挥手）"></a>9.2  TCP连接时释放（四次挥手）</h3><p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108171315467.png" alt="image-20191108171315467"></p>
+<ol>
+<li>A和B都处于<strong>ESTABLISHED状态</strong></li>
+<li>A的应用进程向TCP发出连接释放报文段，再停止发送数据，主动关闭TCP连接，A把连接释放报文段首部的<strong>终止控制位FIN置1，序号seq=u</strong>（前面已经传送过的数据的最后一个字节的序号加1）。这时A进入<strong>FIN-WAIT-1（终止等待1）状态</strong>，等待B的确认。请注意 ，FIN报文段即使不携带任何数据，也要消耗掉一个序号</li>
+<li>B收到连接释放报文段后立刻发出确认，确认号为ack=u+1, 而这个报文段的seq=v，等于B前面传送过的数据的最后一个字节序号+1,然后B就进入了<strong>CLOSE-WAIT(关闭等待)状态</strong>。这时，TCP服务器进程通知高层应用进程，A到B这个连接就释放了，<strong>A不能向B发送数据，但是B如果发送数据给A，A仍然要接受</strong>，TCP连接处于<strong>半关闭状态</strong>.</li>
+<li>A收到来自B的确认的时候，就进入<strong>FIN-WAIT-2(终止等待2状态</strong>),等待B发出的连接释放报文段</li>
+<li>若B已经没有要向A发送的数据了，那么应用进程就通知TCP释放连接，B发送释放报文段（FIN=1，seq=w， ack=u+1),这时候B就进入了<strong>LAST-ACK状态</strong>，等待A的确认 </li>
+<li>A收到B的连接释放报文段后，对此发出确认，在确认报文段中（ACK=1，ack=w+1，seq=u+1)，然后进入<strong>TIME-WAIT（时间等待状态）</strong>。请注意，现在TCP连接还没有释放掉，必须经过<strong>时间等待计时器</strong>设置的时间2MSL后，A才进入到<strong>CLOSE</strong>状态。时间MSL叫做最长报文段寿命，RFC793建议为<strong>2分钟</strong>.</li>
+</ol>
+<blockquote>
+<p>为什么要设置2MSL等待时间呢？ </p>
+</blockquote>
+<ol>
+<li>为了保证A发送的最后一个ACK报文段能到达B，这个ACK报文段有可能丢失，因而处在LAST-ACK状态的B收不到对已发送的FIN+ACK报文段的确认。B会超时重传这个FIN+ACK报文段，而A就能在2MSL时间内收到这个重传的FIN+ACK报文段，然后A重传一次确认，重新启动2MSL计时器。最后，A和B都进行CLOSE状态。</li>
+<li>防止已失效的连接请求报文段出现在本连接中，A在发送完最后一个ACK报文段后，再经过2MSL，就可以让本连接持续的时间内所产生的所有报文段都从网络中消失</li>
+</ol>
+<p><strong>保活计时器：如果服务器每收到i一次客户端传来的数据，就重置保活计时器，如果时间到了，就向客户端发送一个探测报文段，以后每隔75s发送一次，如果连续发送10个还没有收到客户的响应，那么服务器就认为客户端出了故障，主动断开连接</strong></p>
+<h3 id="9-3-TCP的有限状态机"><a href="#9-3-TCP的有限状态机" class="headerlink" title="9.3 TCP的有限状态机"></a>9.3 TCP的有限状态机</h3><ul>
+<li>粗实线箭头：对客户进程的正常变迁</li>
+<li>粗虚线箭头：对服务器进程的正常变迁</li>
+<li>细线箭头：异常变迁</li>
+</ul>
+<p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108173421743.png" alt="image-20191108173421743"></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
@@ -898,7 +1338,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -966,7 +1406,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
 
 
 
