@@ -248,7 +248,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/26/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="John Doe">
@@ -267,7 +267,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/11/26/hello-world/" itemprop="url">Hello World</a></h1>
+                <a class="post-title-link" href="/2019/11/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" itemprop="url">类加载机制</a></h1>
         
 
         <div class="post-meta">
@@ -279,8 +279,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-26T18:12:26+08:00">
-                2019-11-26
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-17T14:41:43+08:00">
+                2019-11-17
               </time>
             
 
@@ -289,6 +289,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -319,20 +341,940 @@
       
         
           
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+            <h3 id="1-类加载的时机"><a href="#1-类加载的时机" class="headerlink" title="1. 类加载的时机"></a>1. 类加载的时机</h3><p>  类从被加载到虚拟机内存中开始，到卸载出内存为止，整个生命周期包括：<strong>加载，验证，准备，解析，初始化，使用，卸载</strong>，其中，<strong>验证，准备，解析</strong>部分统一称为<strong>连接</strong>，发生顺序如下：</p>
+<p><img src="http://i1.fuimg.com/704564/2685d26af778da2d.png" alt="image-20191118123612096"></p>
+<p>其中，<strong>加载，验证，准备，初始化和卸载</strong>这5个阶段的顺序是确定的，类的加载过程必须<strong>按照这种顺序按部就班地开始</strong>，但是解析阶段不一定：<strong>它在某些情况下可以在初始化阶段之后再开始</strong>，这是为了支持Java语言的运行时绑定。<strong>注意，按部就班的开始，并不是按部就班的运行或者完成</strong>，这些阶段通常都是<strong>互相交叉地混合式进行的</strong>，通常会在一个阶段执行的过程中调用、激活另外一个阶段。</p>
+<p>类的加载的第一个过程开始时机，必须立刻对类进行初始化的5种情况：</p>
+<ul>
+<li>遇到new, getstatic,putstatic或者invokestatic这4条字节码指令的时候，如果类没有进行初始化，那么必须先进行初始化。（被final修饰的static变量除外）</li>
+<li>使用java.lang.reflect进行反射调用的时候，如果类还没有进行初始化，就必须先初始化</li>
+<li>当初始化一个类的时候，如果它的<strong>父类</strong>还没有进行初始化，那么则先触发父类的初始化</li>
+<li>当虚拟机启动的时候，用户需要指定一个主类，虚拟机会先初始化这个主类</li>
+<li>如果方法句柄还没有进行初始化，则先触发这个类的初始化</li>
+</ul>
+<p>上面5种情况会触发对类进行初始化的场景，被称为*<em>对类的主动引用 *</em>，除此之外，以下的情况被称为被动引用，不会触发类的加载：</p>
+<ul>
+<li>通过子类引用父类的静态字段，不会导致类的初始化</li>
+<li>通过数组来定义引用类，不会触发初始化</li>
+<li>常量会在编译的时候进入常量池，不会触发类定义的常量的初始化</li>
+</ul>
+<h3 id="2-类加载过程"><a href="#2-类加载过程" class="headerlink" title="2. 类加载过程"></a>2. 类加载过程</h3><h4 id="2-1-加载"><a href="#2-1-加载" class="headerlink" title="2.1 加载"></a>2.1 加载</h4><p>在加载阶段，虚拟机需要完成以下3种事情：</p>
+<ol>
+<li>通过一个类的全限定名来获取定义此类的二进制字节流</li>
+<li>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构</li>
+<li>在内存中生成一个代表这个类的java.lang.Class对象，作为方法区的类的各种数据的访问入口</li>
+</ol>
+<p>获取二进制字节流并不一定要从class文件中获取，java虚拟机并不限制，还可以从以下的方向进行获取：</p>
+<ol>
+<li>jar，zip，war，ear</li>
+<li>从网络中获取</li>
+<li>运行时计算生成</li>
+<li>jsp生成</li>
+<li>数据库中读取</li>
+</ol>
+<p>相对于类加载的其他过程，一个<strong>非数组类的加载阶段</strong>是开发人员可控性最强的，因为我们可以自定义一个类加载器进行加载，但是<strong>数组类的话</strong>，本身不通过类加载器创建，是直接通过jvm直接创建的，但是还是与类加载器有着密切关联，因为数组的元素类型最终还是要靠类加载器进行加载</p>
+<ul>
+<li>如果数组的组件类型（Component Type，数组去掉一个维度的类型）是引用类型，那就递归采用本节中定义的加载过程去加载这个组件类型，数组C将在加载组件类型的类加载器和类名称空间上被<strong>唯一标识</strong></li>
+<li>如果数组的组件类型不是引用类型，例如(int[])，Java虚拟机会把数组C标记为BootStrap类加载器相关联</li>
+<li>数组类的可见性和组件类型一致</li>
+</ul>
+<p><strong>加载阶段和连接阶段是交叉运行的，可能加载还没完成，连接就已经开始了</strong></p>
+<h4 id="2-2-验证"><a href="#2-2-验证" class="headerlink" title="2.2 验证"></a>2.2 验证</h4><p>验证是确保流当前的信息是否符合jvm规范，因为jvm运行的class文件并不规定一定要java源码编译的，甚至可以用16进制编辑器直接编辑</p>
+<p>验证阶段大概完成下面4个阶段的检验工作：</p>
+<ol>
+<li><p>文件格式验证</p>
+<blockquote>
+<p>这个阶段主要是验证字节流是否符合Class文件格式的规范，并且能被当前版本的，包括以下验证点:</p>
+<ul>
+<li>魔数0xCAFEBABA开头</li>
+<li>主、次版本号是否在当前虚拟机的处理范围之内</li>
+<li>常量池的常量中是否有不被支持的常量类型</li>
+<li>指向常量的各种索引值是否有存在指向不存在的常量或者不符合类型的常量</li>
+<li>CONSTANT_Utf8_info型的常量中是否有不符合UTF8编码的数据</li>
+<li>Class文件中各个部分及文件本身是否有被删除或附加的其他信息</li>
+</ul>
+</blockquote>
+<p>只有通过这个阶段的验证，字节流才会进入内存的方法区进行存储，后面三个阶段全是基于方法区的存储结构进行的，不会再直接操作字节流</p>
+</li>
+<li><p>元数据验证</p>
+<blockquote>
+<p>对字节码描述的信息进行语义分析</p>
+<ul>
+<li>这个类是否有父类</li>
+<li>这个类的父类是否是final类型的</li>
+<li>如果这个类不是抽象类，是否实现了其父类或接口中要求实现的方法</li>
+<li>类中的字段、方法是否跟父类产生矛盾</li>
+</ul>
+</blockquote>
+<p>总之，就是验证一些我们平时在IDE里面报错的信息，不允许编译</p>
+</li>
+<li><p>字节码验证</p>
+<blockquote>
+<p>主要目的是通过数据流和控制流分析，确定程序语义是合法的，符合逻辑。在第二阶段对元数据信息中的数据类型进行校验之后，会对类的<strong>方法体</strong>进行校验分析，保证方法在运行的时候不会做出危害jvm的事情</p>
+<ul>
+<li>保证任意时刻操作数栈的数据类型与指令代码都能够配合工作，不会出现例如这样的情况：在操作数栈放置了一个int类型的变量，使用的时候却按照long类型来进行载入</li>
+<li>保证跳转指令不会跳转到方法体以外的字节码</li>
+<li>保证方法体的类型转换是有效的</li>
+</ul>
+<p>StackMapTable：描述了方法体中的所有的基本块(Basic Block，按照控制流拆分的代码块)开始时的本地变量表和操作数栈应有的状态</p>
+</blockquote>
+</li>
+<li><p>符号引用验证</p>
+<blockquote>
+<p>这个阶段是为了<strong>确保解析阶段的正确运行</strong>，如果无法通过符号验证，将会抛出一个异常</p>
+<ul>
+<li>验证符号引用中通过字符串描述的全限定名是否能够找到对应的类</li>
+<li>在指定类中是否存在符合方法的字段描述符以及简单名称所描述的方法和字段</li>
+<li>符号引用中的类、字段、方法的访问性是否可以被当前类进行访问</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+<h4 id="2-3-准备"><a href="#2-3-准备" class="headerlink" title="2.3 准备"></a>2.3 准备</h4><blockquote>
+<p>准备阶段是正式为类变量分配<strong>内存</strong>并且设置类<strong>类变量初始值</strong>的阶段，这些变量使用的内存都在方法区里面进行分配，但是只是分配<strong>static</strong>引用的变量，实例变量在堆中进行分配</p>
+<p>还有一点就是，<strong>赋予初始值并不是赋值，比如一段代码private static int a = 123，并不是将123赋予a, 而是给它零值，具体的赋值在初始化阶段进行</strong>，但是对于常量，会直接进行赋值</p>
+</blockquote>
+<h4 id="2-4-解析"><a href="#2-4-解析" class="headerlink" title="2.4 解析"></a>2.4 解析</h4><p>解析阶段是虚拟机将常量池中的符号引用替换为直接引用的过程：</p>
+<ul>
+<li>符号引用：用一组字面量来描述引用的目标，比如我们在定义一个方法 test(),那么这个test就是符号。</li>
+<li>直接引用：直接引用是直接指向目标的指针，相对偏移量或者一个能够间接定位到目标的句柄。直接引用是和虚拟机实现的内存布局相关的。<strong>同一个符号引用在不同虚拟机翻译出来的一般都不会相同</strong></li>
+</ul>
+<p>解析动作主要是针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符7类符号的引用进行，分别对应于常量池的<strong>CONSTANT_Class_info、CONSTANT_Fieldref_info、CONSTANT_Methodref_info,CONSTANT_InterfaceMethodref_InvokeDynamic_info</strong>的7种常量类型。</p>
+<blockquote>
+<ul>
+<li><p>类和接口的解析</p>
+<p>假设当前代码所处于类D，如果要把一个从来未解析过的符号引用N解析成一个类或接口C的直接引用，那虚拟机完成整个解析过程的3个步骤：</p>
+<ol>
+<li>如果C不是一个数组类型，那么虚拟机将会吧代表<strong>N的全限定名去传递给D的类加载器</strong>，在这个加载过程中，可能又会触发其他相关类的加载动作，一旦这个加载过程出现了任何异常，解析过程就失败</li>
+<li>如果C是一个数组类型，并且数组的元素类型为对象，也就是N的描述符是”[Ljava/lang/Integer”的形式，那么会按照第一点规则加载数组元素类型，接着由虚拟机生成一个代表此数组维度和元素的数组对象</li>
+<li>如果上面的步骤没有出现任何异常，那么C在虚拟机上已经成为一个有效的对象了，但在解析完成之前，还要进行符号引用验证，确保D对C有访问权限</li>
+</ol>
+</li>
+<li><p>字段解析</p>
+<ul>
+<li>如果C本身就包含了简单名称和字段描述符都与目标相匹配的字段，则返回这个字段的直接引用，查找结束。（个人理解，是子类直接定义了一个字段）</li>
+<li>否则，如果C实现类接口，将会按照继承关系从下往上递归搜索各个接口和它的父接口，如果接口中包含了简单名称和字段描述符都与目标相匹配的字段，则返回这个字段的直接引用</li>
+<li>否则，如果C不是Object类的话，按照继承关系搜索父类，如果父类匹配，返回</li>
+<li>否则，查找失败，抛出NoSuchFieldError异常</li>
+</ul>
+<p>如果查找过程中成功返回了引用，则还会进行权限验证</p>
+</li>
+<li><p>类方法的解析</p>
+<ul>
+<li>类方法和接口方法符号引用的常量类型定义是分开的，如果类方法表中发现class_index索引的C是接口，直接抛出异常</li>
+<li>通过第一步，查找是否C中含有，有的话返回直接引用</li>
+<li>否则，递归搜索父类查看是否有这个方法的直接引用，有的话直接返回</li>
+<li>否则，在类C实现的接口列表及它们的父接口之中递归查找是否含有简单名称和描述符号都匹配的方法，如果存在，则说明类C是一个抽象类，查找结束，抛出java.lang.AbstractMethod异常</li>
+<li>否则，抛出NoSuchMethod异常</li>
+</ul>
+<p>成功返回，进行符号验证</p>
+</li>
+<li><p>接口方法解析</p>
+<ul>
+<li>发现接口方法表的某个索引C不是接口，抛出异常</li>
+<li>否则，接口c直接含有，返回直接饮用，查找结束</li>
+<li>否则，在接口C的父接口中递归查找，有则返回</li>
+<li>否则，宣告失败，抛异常</li>
+</ul>
+<p>因为接口方法所有都是public的，所以无需验证</p>
+</li>
+</ul>
+</blockquote>
+<h4 id="2-5-初始化"><a href="#2-5-初始化" class="headerlink" title="2.5 初始化"></a>2.5 初始化</h4><p>前面的类加载过程，<strong>除了加载阶段用户应用程序可以通过自定义类加载器参加之外，其余动作完全由虚拟机主导和控制</strong>，到了<strong>初始化</strong>阶段，才真正开始执行类中定义的Java程序代码</p>
+<p>在准备阶段，变量已经赋予一次<strong>系统要求的初始值</strong>，而初始化阶段，则根据程序员通过程序制定的主观计划去初始化类变量和其他资源，初始化阶段是执行<strong>类构造器<clinit>()方法的过程</clinit></strong>。</p>
+<ul>
+<li><clinit>()方法是由编译器自动收集类中的所有类变量的赋值动作和静态语句块(static{})中的语句合并产生的。静态语句块中只能访问到定义在静态语句块之前的变量，在之后的<strong>可以赋值，不能访问</strong></clinit></li>
+<li><clinit> 方法不需要显式地调用父类构造器，虚拟机会保证在子类的<clinit>方法执行之前，父类的已经执行完毕</clinit></clinit></li>
+<li>父类中定义的静态语句块要优于子类</li>
+<li><clinit>对于类或者接口并不是必须的，如果类中没有静态语句块，也灭有变量赋值的操作的话</clinit></li>
+<li>接口中不能使用静态语句块，但是有变量初始化的赋值操作，因此接口与类一样都会生成<clinit>方法。但接口与类不同的是，执行接口的这个方法不需要先执行父类的，只有当父类的变量使用的时候，才会执行<clinit></clinit></clinit></li>
+<li>虚拟机会保证一个类的<clinit> 方法在多线程的环境下被正确的加锁，同步，如果多个线程同时去初始化一个类，那么只有一个线程会执行，其他线程总是在阻塞等待。</clinit></li>
+</ul>
+<h3 id="4-类加载器"><a href="#4-类加载器" class="headerlink" title="4. 类加载器"></a>4. 类加载器</h3><h4 id="4-1-双亲委派模型"><a href="#4-1-双亲委派模型" class="headerlink" title="4.1 双亲委派模型"></a>4.1 双亲委派模型</h4><ul>
+<li>虚拟机的角度:<ul>
+<li>启动类加载器，是虚拟机的一部分</li>
+<li>其他类加载器，由java语言实现</li>
+</ul>
+</li>
+<li>开发人员的角度<ul>
+<li>启动类加载器：加载<JAVA_HOME>\lib目录下的文件</JAVA_HOME></li>
+<li>扩展类加载器：加载 <JAVA_HOME>\lib\ext目录下的</JAVA_HOME></li>
+<li>应用类加载器：加载用户类路径上的类库</li>
+</ul>
+</li>
+</ul>
+<p>模型图：</p>
+<p><img src="http://i1.fuimg.com/704564/5814eae070bf6bc4.png" alt="image-20191118145506305"></p>
+<p>工作过程：</p>
+<ol>
+<li>类加载器收到了类加载的请求</li>
+<li>委托给父类进行加载</li>
+<li>每一个层次的都是如此循环</li>
+<li>传送到顶层的启动类加载器</li>
+<li>父加载器无法完成任务，子加载器尝试加载</li>
+</ol>
+<p><strong>好处</strong></p>
+<ul>
+<li>Java类随着类加载器一起具备了优先级的层次关系，无论哪一个类进行加载，都会先加载自java.lang.Object.</li>
+</ul>
+<h4 id="4-2-破坏双亲委派模型"><a href="#4-2-破坏双亲委派模型" class="headerlink" title="4.2 破坏双亲委派模型"></a>4.2 破坏双亲委派模型</h4><ul>
+<li><p>双亲委派模型出现之前，开发人员一般都是重写loadClass（）方法，所以会导致被破坏，现在jvm规定让用户去重写findClass方法，只有父类没有加载成功，才会执行findClass</p>
+</li>
+<li><p>模型自身的缺陷</p>
+<p>假设一种情况，当父加载器加载的类需要调用子加载器的类，也就是用户回调的代码，那应该怎么办？</p>
+<p>Java引入了一个线程上下文加载器：这个类加载器可以通过java.lang.Thread类的setContextClassLoaser方法进行设置，如果创建线程的时候还未设置，它将会从父线程中继承一个，如果在全局范围内都没有设置过，那这个类加载器就是默认的应用程序类加载器。</p>
+</li>
+<li><p>追求程序的动态性——OSGI</p>
+<p>OSGI把每一个程序模块称之为Bundle，每一个Bundle都有自己的类加载器，当需要更改一个Bundle的时候，就把Bundle连同类加载器一同换掉，OSGI按照下面的顺序进行搜索：</p>
+<ol>
+<li>将以java.*开头的类委派给父类加载器进行加载</li>
+<li>否则，将委派列表名单内的类委派给父类加载器进行加载</li>
+<li>否砸，将Import列表中的类委派给Export这个Bundle的类加载器进行加载</li>
+<li>否则，查找当前的Bundle的ClassPath，使用自己的类加载器进行加载</li>
+<li>否则，查找类是否在自己的Fragment Bundle中，如果在，则委派给Fragment Bundle的类加载器加载</li>
+<li>否则，查找Dynamic Import列表的Bundle，委派给对应的Bundle的类加载器进行加载</li>
+<li>否则，失败</li>
+</ol>
+</li>
+</ul>
 
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
 
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+    
 
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+    
 
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+    
 
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/16/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/16/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/" itemprop="url">垃圾收集器和内存分配策略</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-16T13:53:57+08:00">
+                2019-11-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="1-对象已死吗"><a href="#1-对象已死吗" class="headerlink" title="1. 对象已死吗"></a>1. 对象已死吗</h3><h4 id="1-1-引用计数法"><a href="#1-1-引用计数法" class="headerlink" title="1.1 引用计数法"></a>1.1 引用计数法</h4><blockquote>
+<p>给对象添加一个计数器，当有一个地方引用，计数器的值+1，引用失效的时候，计数器的值-1</p>
+</blockquote>
+<p><strong>会出现的问题</strong></p>
+<ul>
+<li>当对象相互引用的时候，GC并不会回收这两个对象的内存空间</li>
+</ul>
+<h4 id="1-2-可达性分析算法"><a href="#1-2-可达性分析算法" class="headerlink" title="1.2 可达性分析算法"></a>1.2 可达性分析算法</h4><blockquote>
+<p>当一个对象到GC Roots没有任何引用链相连，则证明对象是不可用的</p>
+</blockquote>
+<p><strong>可作为GC Roots对象</strong></p>
+<ul>
+<li>虚拟机栈（栈帧中的本地变量表）引用的对象</li>
+<li>方法区的类静态属性引用的对象</li>
+<li>方法区中的常量引用的对象</li>
+<li>本地方法栈中JNI引用的对象</li>
+</ul>
+<p><strong>引用类型</strong></p>
+<ul>
+<li><p>强引用：Object obj = new Object(); 只要对象引用还存在，就不会回收掉被引用的对象</p>
+</li>
+<li><p>软引用</p>
+<p>描述一些还有用但是并非必须的对象。当<strong>系统即将发生内存溢出的时候，才会把这些对象列入回收范围之中进行第二次回收</strong>, 使用SoftReference进行软引用</p>
+</li>
+<li><p>弱引用</p>
+<p>只能<strong>存活到下一次垃圾收集之前</strong>，垃圾收集器工作，无论内存是否足够，都会回收掉, 使用WeakReference</p>
+</li>
+<li><p>虚引用</p>
+<p>被垃圾回收的时候，提供了一个系统通知</p>
+</li>
+</ul>
+<h4 id="1-3-生存还是死亡"><a href="#1-3-生存还是死亡" class="headerlink" title="1.3 生存还是死亡"></a>1.3 生存还是死亡</h4><p><img src="http://i1.fuimg.com/704564/409cdde832bed160.png" alt="image-20191116140657241"></p>
+<p><img src="http://i1.fuimg.com/704564/05917cdac7c70e7b.png" alt="image-20191116140725241"></p>
+<h4 id="1-4-回收方法区（永久代）"><a href="#1-4-回收方法区（永久代）" class="headerlink" title="1.4 回收方法区（永久代）"></a>1.4 回收方法区（永久代）</h4><ul>
+<li><p>在方法区中进行垃圾收集的性价比一般都比较低</p>
+</li>
+<li><p>垃圾收集主要回收两部分内容:</p>
+<ol>
+<li><p>废弃常量</p>
+</li>
+<li><p>无用的类</p>
+<p><strong>判定是否是无用的类</strong></p>
+<ol>
+<li>该类的所有实例都已经进行回收 </li>
+<li>加载该类的ClassLoader已经被回收</li>
+<li>该类对应的Java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射进行访问</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<p><strong><em>在大量使用反射，动态代理的虚拟机必须具备类卸载功能</em></strong></p>
+<h3 id="2-垃圾回收算法"><a href="#2-垃圾回收算法" class="headerlink" title="2. 垃圾回收算法"></a>2. 垃圾回收算法</h3><h4 id="2-1-标记-清除算法（Mark-sweep"><a href="#2-1-标记-清除算法（Mark-sweep" class="headerlink" title="2.1 标记-清除算法（Mark-sweep)"></a>2.1 标记-清除算法（Mark-sweep)</h4><blockquote>
+<p><strong>首先标记出所有需要回收的对象，在标记完成后统一进行回收所有被标记的对象</strong></p>
+</blockquote>
+<p>会出现的问题：</p>
+<ol>
+<li>效率问题：标记和清除两个过程效率都不高</li>
+<li>空间问题：会产生大量不连续的碎片，空间碎片太多可能会导致以后找不到足够的连续内存而触发下一次的GC</li>
+</ol>
+<h4 id="2-2-复制算法"><a href="#2-2-复制算法" class="headerlink" title="2.2 复制算法"></a>2.2 复制算法</h4><p><strong>为了解决标记清楚算法的效率问题出现的</strong></p>
+<blockquote>
+<p>将内存容量划分为大小相等的两块，每次只使用其中一块，当这一块内存用完了，就将还存活的对象复制到另外一块上面，然后再把已经使用过的内存空间一次性全部清除</p>
+</blockquote>
+<p><strong>不足之处：</strong></p>
+<blockquote>
+<p>划分为1:1对两个空间，代价会比较大</p>
+</blockquote>
+<p><strong>完善：</strong></p>
+<blockquote>
+<p>将内存划分为一块较大的Eden区和两块块比较小的Survivor区域，HotSpot虚拟机默认大小比例为8:1， 当发生GC的时候，将Survivor和Eden区域中 存活的对象一次性复制到另外一块Survivor区域中，然后清理掉。</p>
+<p><strong>当Survivor空间不够用的时候，需要依赖其他内存（老年代）进行分配担保。</strong></p>
+<p><strong>分配担保机制</strong>:如果另外一块Survivor空间没有足够的空间存放上一次新生代收集下来的存活对象，这些对象将直接通过分配担保机制进入老年代</p>
+</blockquote>
+<h4 id="2-3-标记-整理算法"><a href="#2-3-标记-整理算法" class="headerlink" title="2.3 标记-整理算法"></a>2.3 标记-整理算法</h4><p>老年代一般不能直接使用复制算法，因为老年代没有额外的空间进行分配担保</p>
+<blockquote>
+<p>标记整理算法，与标记清楚算法一样，但是后续步骤是让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存</p>
+</blockquote>
+<h4 id="2-4-分代收集算法"><a href="#2-4-分代收集算法" class="headerlink" title="2.4 分代收集算法"></a>2.4 分代收集算法</h4><blockquote>
+<p>根据内存的存活周期划分Java堆为新生代和老年代，然后根据不同的特点采用不同的回收算法</p>
+</blockquote>
+<h3 id="3-HotSpot算法的实现"><a href="#3-HotSpot算法的实现" class="headerlink" title="3. HotSpot算法的实现"></a>3. HotSpot算法的实现</h3><h4 id="3-1-枚举根节点"><a href="#3-1-枚举根节点" class="headerlink" title="3.1 枚举根节点"></a>3.1 枚举根节点</h4><ul>
+<li><p>作为GC Roots的节点在很多应用中都有数百兆，如果逐个进行检查，会消耗很多时间</p>
+</li>
+<li><p>可达性分析的GC停顿:分析工作必须在一个能确保一致性的快照中进行，也就是说，开始分析的时候，对象的引用关系不能还在不断的变化，Sun称这些事为<strong>Stop the Word</strong></p>
+</li>
+<li><p>准确式GC</p>
+<p>当执行的系统停顿下来后，并不需要一个不漏的检查完所有执行上下文和对象的引用，虚拟机应高有办法得知哪些地方存放着对象的引用，HotSpot中，使用<strong>一组</strong>成为OopMap的数据结构来达到这个母的</p>
+<p> OopMap</p>
+<blockquote>
+<p>一个线程意味着一个栈，一个栈中有多个栈帧（方法调用的时候用来存储局部变量表，操作数栈，动态链接，方法出口信息），一个方法里面可能有多个安全点。 gc 发生时，程序首先运行到最近的一个安全点停下来，然后更新自己的 OopMap ，记下栈上哪些位置代表着引用。枚举根节点时，递归遍历每个栈帧的 OopMap ，通过栈中记录的被引用对象的内存地址，即可找到这些对象（ GC Roots ）。</p>
+</blockquote>
+</li>
+<li><p>安全点</p>
+<p>是否具有让程序长时间执行的额特征</p>
+<ul>
+<li>方法调用</li>
+<li>循环跳转</li>
+<li>异常跳转</li>
+</ul>
+<p><strong>如何让所有的线程跑到最近的安全点再停顿</strong></p>
+<ol>
+<li><p>抢先式中断</p>
+<p>GC发生的时候，将所有的线程中断，如果发现线程不在安全点，那么就恢复线程，让线程运行到安全点</p>
+</li>
+<li><p>主动式中断</p>
+<p>GC需要中断线程的时候，不直接对线程进行操作，仅仅是简单的设置一个标志，各个线程执行时再去轮巡这个标志，发现中断标志位真时就自己中断挂起（轮询的地方和安全点事重合的）。</p>
+</li>
+</ol>
+</li>
+<li><p>安全区域</p>
+<p>在一段代码中，引用关系不会发生变化。  </p>
+<p>线程执行到Safe Region中的代码的时候，首先标识自己已经进入了Safe Region，那样，在这段时间里JVM要发起GC时，就不用管标识自己位Safe Region状态的线程，在线程要离开Safe Region的时候，它要检查系统是否已经完成了GC，如果完成，线程继续执行，否则，等待直到收到可以安全离开的信号为止</p>
+</li>
+</ul>
+<h3 id="2-5-垃圾回收器"><a href="#2-5-垃圾回收器" class="headerlink" title="2.5 垃圾回收器"></a>2.5 垃圾回收器</h3><p><img src="http://i1.fuimg.com/704564/5ad1adce316b59c0.png" alt="image-20191116145608601"></p>
+<p><strong>并发垃圾收集和并行垃圾收集</strong></p>
+<blockquote>
+<p>（A）、并行（Parallel）</p>
+<p>​    指多条垃圾收集线程并行工作，但此时用户线程仍然处于等待状态；</p>
+<p>​    如ParNew、Parallel Scavenge、Parallel Old；</p>
+<p>（B）、并发（Concurrent）</p>
+<p>​    指用户线程与垃圾收集线程同时执行（但不一定是并行的，可能会交替执行）；</p>
+<p>   用户程序在继续运行，而垃圾收集程序线程运行于另一个CPU上；  </p>
+<p>​    如CMS、G1（也有并行）；</p>
+</blockquote>
+<p><strong>Minor GC 和 Full GC</strong>. </p>
+<blockquote>
+<p>A）、Minor GC</p>
+<p>​    又称新生代GC，指发生在新生代的垃圾收集动作；</p>
+<p>​    因为Java对象大多是朝生夕灭，所以Minor GC非常频繁，一般回收速度也比较快；</p>
+<p>（B）、Full GC</p>
+<p>​    又称Major GC或老年代GC，指发生在老年代的GC；</p>
+<p>​    出现Full GC经常会伴随至少一次的Minor GC（不是绝对，Parallel Sacvenge收集器就可以选择设置Major GC策略）；</p>
+<p>   Major GC速度一般比Minor GC慢10倍以上；</p>
+</blockquote>
+<ul>
+<li><p>收集器:</p>
+<ol>
+<li><p>Serial收集器</p>
+<blockquote>
+<ol>
+<li><p>特点：</p>
+<ul>
+<li>针对新生代</li>
+<li>采用复制算法</li>
+<li>暂停所有的用户线程</li>
+<li>使用一条线程进行垃圾收集</li>
+</ul>
+</li>
+<li><p>应用场景</p>
+<ul>
+<li>单CPU的环境，可获得最高效率</li>
+<li>可用内存不大，就能在较短时间完成垃圾收集</li>
+</ul>
+</li>
+<li><p>设置参数</p>
+<p>“-XX: +UseSerialGC”</p>
+</li>
+</ol>
+<p><img src="http://i1.fuimg.com/704564/6da465385f92843a.png" alt="image-20191116150551881"></p>
+</blockquote>
+</li>
+<li><p>ParNew收集器</p>
+<blockquote>
+<p><strong>Serial收集器的多线程版本</strong></p>
+<ol>
+<li><p>特点</p>
+<ul>
+<li><p>除了多线程外，其余的行为、特点和Serial收集器一样；</p>
+<p>   如Serial收集器可用控制参数、收集算法、Stop The World、内存分配规则、回收策略等</p>
+</li>
+<li><p>唯一能与CMS配合工作的多线程收集器(Serial也行，但是单线程，Serial Old为老年代)</p>
+</li>
+</ul>
+</li>
+<li><p>设置参数:</p>
+<ul>
+<li><p>“-XX:+UseConcMarkSweepGC”：指定使用CMS后，会默认使用ParNew作为新生代收集器；</p>
+</li>
+<li><p>“-XX:+UseParNewGC”：强制指定使用ParNew；  </p>
+</li>
+<li><p>“-XX:ParallelGCThreads”：指定垃圾收集的线程数量，ParNew默认开启的收集线程与CPU的数量相同；</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://i1.fuimg.com/704564/2a3d78f095f97236.png" alt="image-20191116151054966"></p>
+</blockquote>
+</li>
+<li><p>Parallel Scavenge收集器(并行清除，新生代)</p>
+<blockquote>
+<ol>
+<li><p>特点</p>
+<ul>
+<li><p>关注点是达到一个可控制的吞吐量</p>
+<p>$吞吐量= 运行用户代码时间 /（运行用户代码时间 + 垃圾收集时间）$</p>
+<ol>
+<li><p>控制最大垃圾收集时间: -XX:MaxGCPauseMillis</p>
+<p>收集器将尽可能的保证内存回收花费的时间不超过设定值，不过并不是越小越好，GC停顿时间缩短是以牺牲吞吐量和新生代空间来换取的： <strong>系统将新生代调小一点，收集300M新生代肯定比500M快，但是也导致垃圾收集发生得更频繁</strong></p>
+</li>
+<li><p>直接设置吞吐量大小:-XX:GCTimeRatio</p>
+<p>一个大于0但是小于100的数，也就是垃圾收集时间占总时间的比率，相当于吞吐量的倒数。如果参数设置为19，那允许最大的GC时间就占总时间的5%，(1 / (1 + 99)),默认值为99</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>参数</p>
+<ul>
+<li>-XX:+UseAdptiveSizePolicy”: 开启这个参数之后，新生代的大小（-Xmn）、Eden与Survivor区的比例（-XX:SurvivorRation）、晋升老年代的对象年龄（-XX:PretenureSizeThreshold）等不用手动指定,值得推荐，因为: <ol>
+<li>只需设置好内存数据大小（如”-Xmx”设置最大堆）</li>
+<li>然后使用”-XX:MaxGCPauseMillis”或”-XX:GCTimeRatio”给JVM设置一个优化目标</li>
+<li>那些具体细节参数的调节就由JVM自适应完成；    </li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>Serial Old收集器</p>
+<blockquote>
+<ol>
+<li><p>应用场景</p>
+<ul>
+<li>在JDK1.5及之前，与Parallel Scavenge收集器搭配使用（JDK1.6有Parallel Old收集器可搭配）</li>
+<li>作为CMS收集器的后备预案，在并发收集发生Concurrent Mode Failure时使用（后面详解</li>
+</ul>
+<p><img src="http://i1.fuimg.com/704564/6da465385f92843a.png" alt="image-20191116152753468"></p>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>Parallel Old收集器</p>
+<p><img src="http://i1.fuimg.com/704564/72e2ddb17497953d.png" alt="image-20191116152850462"></p>
+</li>
+<li><p>CMS收集器（老年代）</p>
+<blockquote>
+<p><a href="https://www.jianshu.com/p/2a1b2f17d3e4" target="_blank" rel="noopener">https://www.jianshu.com/p/2a1b2f17d3e4</a> 引用占小狼</p>
+<h5 id="周期性Old-GC过程"><a href="#周期性Old-GC过程" class="headerlink" title="周期性Old GC过程"></a>周期性Old GC过程</h5><p><img src alt="image-20191116164820356"></p>
+<p>对象在标记过程中，根据标记的情况，分为三类:</p>
+<ol>
+<li>白色对象，表示自身未被标记</li>
+<li>灰色对象，表示自身被标记，但是内部引用未被处理</li>
+<li>黑色对象，表示自身被标记，内部引用都被处理</li>
+</ol>
+<p><img src="http://i1.fuimg.com/704564/d8c9a5f8a7be50c2.png" alt="image-20191116165049093"></p>
+<p>假设一开始，Java堆的对象分布如下：</p>
+<img src="http://i1.fuimg.com/704564/d8c9a5f8a7be50c2.png" alt="image-20191116165049093" style="zoom:50%;">
+
+<ol>
+<li><p>InitialMarking(初始化标记，整个过程STW)</p>
+<p>单线程执行，分为两步：</p>
+<ol>
+<li>标记GC Roots可达到的老年代对象</li>
+<li>遍历新生代对象，标记可达的老年代对象</li>
+</ol>
+<p>过程结束后，对象分布如下：</p>
+<p><img src="http://i1.fuimg.com/704564/b473cf7de012e32c.png" alt="image-20191116165254717"></p>
+</li>
+<li><p>Marking（并发标记）</p>
+<p>该阶段<strong>GC线程</strong>和应用线程并发执行，遍历InitialMarking阶段出来的存活对象，然后继续递归标记这些对象可达的对象</p>
+<p>但是这里会有一个小问题出现：<strong>因为该阶段是并发执行的，在运行期间可能发生<em>新生代的对象晋升老年代</em>、<em>在老年代分配对象</em>、<em>更新老年代对象的引用关系</em>等，这些都是需要进行重新标记的，否则就会出现漏标</strong></p>
+<p>为了提高重新标记的效率，该阶段会把上述对象所在的Card标识为Dirty，（Card，将老年代空间划分为一个一个Card）后续只需要扫描这些Dirty的对象</p>
+<p><img src="http://i1.fuimg.com/704564/7dded99009698d9a.png" alt="image-20191116165717096"></p>
+<ol start="3">
+<li><p><strong>Precleaning（预清理）</strong></p>
+<p>通过参数$\color{red}{CMSPreCleaningEnabled}$，选择关闭这个阶段，默认启用，主要做两件事情</p>
+<ol>
+<li>处理新生代已经发现的引用，比如在并发阶段，在Eden区中分配了一个A对象，A对象引用了一个老年代对象B（这个B之前没有被标记），在这个阶段就会标记B为活跃对象</li>
+<li>在并发标记阶段，如果老年代中有对象内部引用发生变化，会把所在的Card标记为Dirty，通过扫描这些Table，重新标记那些在并发阶段引用被更新的对象</li>
+</ol>
+</li>
+<li><p>AbortablePreclean（可中断的预清理）</p>
+<p>发生的前提：新生代Eden区中的内存大于参数$\color{red}{CMSScheduleRemarkEdenSizeThreshold}$</p>
+<p>，默认为2M，如果新生代对象太少，就没有必要执行这个阶段</p>
+<p><strong>为什么需要这个阶段？</strong></p>
+<p>CMS GC的终极目标是降低垃圾回收时的暂停时间，所以在该阶段要尽最大的努力去处理那些在并发阶段被应用线程更新的老年代对象，这样在暂停的重新标记阶段就可以少处理一些，暂停时间就会相对降低</p>
+<p>在该阶段，主要循环的<strong>两件事</strong></p>
+<ol>
+<li>处理From和To区对象，标记可达的老年代对象</li>
+<li>和上一个阶段一样，扫描处理Dirty Card中的对象</li>
+</ol>
+<p>打断这个循环的条件有三个：</p>
+<ol>
+<li>设置最多循环的次数$\color{red}{CMSMaxAbortablePrecleanLoops}$,默认为0，意思是没有循环次数限制</li>
+<li>如果执行这个逻辑的时间达到了阈值$\color{red}{CMSAbortablePrecleanTime}$，默认时5s，会退出循环</li>
+<li>如果新生代Eden区内存使用率达到了阈值$\color{red}{CMSScheduleRemarkEdenPenetration}$,默认为50%，会退出循环</li>
+</ol>
+<p>如果在循环退出之前，发生了一次YGC，对于后面的Remark阶段来说，大大减轻了扫描年轻代的负担，但是这是<strong>不可控的</strong></p>
+</li>
+<li><p>FinalMarking(并发重新标记，STW)</p>
+<p>该阶段并发执行，在之前的并行阶段，可能会产生新的引用关系如下：</p>
+<ol>
+<li>老年代的对象被GC Roots引用</li>
+<li>老年代的未标记对象被新生代对象引用</li>
+<li>老年代已标记的对象增加新引用指向其他老年代的其他对象</li>
+<li>新生代对象指向老年代引用被删除</li>
+<li>其他</li>
+</ol>
+<p>上述有一些情况可能会在Precleaning和AbortablePreclean阶段被处理过，但总存在没有来得及处理的，所以还有以下的处理：</p>
+<ol>
+<li>遍历新生代对象，重新标记</li>
+<li>根据GC Roots，重新标记</li>
+<li>遍历老年代的Dirty Card，重新标记，这里的Dirty Card大部分已经在clean阶段处理过了</li>
+</ol>
+<p>如果之前恰巧发生了一次YGC，那么效率会提高很多</p>
+<p>CMS提供了一个参数：$\color{red}{CMSScavengeBeforeRemark}$,默认没有开启，如果开启了这个参数，在最终标记执行之前，会强制YGC</p>
+</li>
+<li><p>并发清理</p>
+</li>
+</ol>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>G1收集器</p>
+<blockquote>
+<ul>
+<li><p>启用G1收集器: +XX:+UserG1GC</p>
+</li>
+<li><p>堆内存结构</p>
+<ol>
+<li><p>以往的垃圾回收算法</p>
+<p><img src="http://i1.fuimg.com/704564/18f7cf6ca7de36ad.png" alt="image-20191116183341625"></p>
+<ul>
+<li>新生代：eden space + 2个survivor</li>
+<li>老年代：old space</li>
+</ul>
+</li>
+<li><p>在G1算法中，采用另外一种完全不同的方式组织堆内存，堆内存被划分为大小相等的内存块(Region),每个Region时逻辑连续的一段内存，如下图:</p>
+<p><img src="http://i1.fuimg.com/704564/9ea98e8beba489d4.png" alt="image-20191116183658977"></p>
+<p>其中，H是以往算法中没有的，它代表了Humongous，这表示了这些Region存储的是巨型对象，当新建对象大小超过Region的大小一半的时候，直接在一个新的或者多个连续的region中分配，并标记为H</p>
+</li>
+</ol>
+</li>
+<li><p>Region</p>
+<p>堆内存中的一个Region的大小可以通过$\color{red}{-XX:G1HeapRegionSize}$参数来指定，大小区间只能是1M，2M，2的幂次方</p>
+</li>
+<li><p>GC模式</p>
+<ul>
+<li><p>young gc</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">-XX:MaxGCPauseMillis</td>
+<td align="center">设置G1收集过程目标时间，默认值200ms</td>
+</tr>
+<tr>
+<td align="center">-XX:G1NewSizePercent</td>
+<td align="center">新生代最小值，默认值5%</td>
+</tr>
+<tr>
+<td align="center">-XX:G1MaxNewSizePercent</td>
+<td align="center">新生代最大值，默认值60%</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>mixed gc</p>
+<p>混合GC，回收一部分old region，全部的young region</p>
+<p>触发条件：</p>
+<p>XX:InitiatingHeapOccupancyPercent,当老年代大小占整个堆大小百分比达到该阈值，会触发一次mixed gc</p>
+</li>
+<li><p>full gc</p>
+<p>老年代被填满，触发full fc， G1的full gc算法就是单线程执行的serial old gc</p>
+</li>
+</ul>
+</li>
+<li><p>RSet</p>
+<p>每个Region初始化时，会初始化一个remember set，该集合用来追踪其他Region指向该Region的引用。每个Region按照默认的512KB划分为多个Card，所以RSet需要记录的东西应该是xxRegion的xxCard。</p>
+<p><img src="http://i1.fuimg.com/704564/3b3a1133ffdb255a.png" alt="image-20191116185243861"></p>
+<ul>
+<li><p>好处：</p>
+<p>如果Region1有根对象A引用了region2对象B，显然B是活的，如果没有Rset，就需要扫描整个Region1和其他Region，才能确定B是活的。</p>
+</li>
+</ul>
+</li>
+<li><p>对象分配策略</p>
+<ol>
+<li>TLAB线程本地分配缓冲区</li>
+<li>Eden区中分配</li>
+<li>Humongous分配</li>
+</ol>
+<p>TLAB为线程本地分配缓冲区，它的目的是为了使对象尽快的分配出来，如果对象在一个共享的空间中分配，我们需要采用一些同步机制来管理这些空间内的空闲空间指针，在Eden空间中，每一个线程都有一个固定的分区用来分配对象，即一个TLAB。</p>
+<p>对TLAB空间中无法分配的对象，会尝试在Eden控制中分配</p>
+<p>如果Eden中无法分配，那么只能在老年代中进行分配空间</p>
+</li>
+<li><p>G1 YoungGC</p>
+<p>主要是对Eden区进行GC，在Eden空间耗尽的时候会被触发，在这种情况下，Eden空间的数据移动到Survivor空间中，如果Survivor空间不够，Eden空间的部分数据会直接晋升到老年代空间，Survivor区的数据移动到新的Survivor区中，也有部分直接晋升到老年代中，最终Eden空间的数据为空，GC停止工作。</p>
+<p><img src="http://i1.fuimg.com/704564/8cf9a3436a8d8d44.png" alt="image-20191116191359101"></p>
+<p><strong>如果仅仅GC新生代对象，我们如何找到所有的根对象呢？老年代所有对象都是根吗？那样扫描下来会耗费大量的时间</strong>，于是，G1引入了RSet概念 ，作用是跟踪指向某个heap区内的对象引用</p>
+<p><img src="http://i1.fuimg.com/704564/202fb594887e0fb9.png" alt="image-20191116191556413"></p>
+<p>Young GC 阶段：</p>
+<ul>
+<li>阶段1：根扫描<br>静态和本地对象被扫描</li>
+<li>阶段2：更新RS<br>处理dirty card队列更新RS</li>
+<li>阶段3：处理RS<br>检测从年轻代指向年老代的对象</li>
+<li>阶段4：对象拷贝<br>拷贝存活的对象到survivor/old区域</li>
+<li>阶段5：处理引用队列<br>软引用，弱引用，虚引用处理</li>
+</ul>
+</li>
+<li><p>G1 Mix GC</p>
+<p>在进行Mix GC之前，会进行global concurrent marking</p>
+<ol>
+<li><p>初始标记（initial mark，STW）（第一次暂停所以应用线程）<br>  在此阶段，G1 GC 对根进行标记。该阶段与常规的 (STW) 年轻代垃圾回收密切相关。</p>
+</li>
+<li><p>根区域扫描（root region scan）<br>  G1 GC 在初始标记的存活区扫描对老年代的引用，并标记被引用的对象。该阶段与应用程序（非 STW）同时运行，并且只有完成该阶段后，才能开始下一次 STW 年轻代垃圾回收。</p>
+</li>
+<li><p>并发标记（Concurrent Marking）<br>  G1 GC 在整个堆中查找可访问的（存活的）对象。该阶段与应用程序同时运行，可以被 STW 年轻代垃圾回收中断</p>
+</li>
+<li><p>最终标记（Remark，STW）（第二次暂停所以应用线程）<br> 该阶段是 STW 回收，帮助完成标记周期。G1 GC 清空 SATB 缓冲区，跟踪未被访问的存活对象，并执行引用处理。</p>
+</li>
+<li><p>清除垃圾（Cleanup，STW）（第三次暂停所以应用线程）<br>  在这个最后阶段，G1 GC 执行统计和 RSet 净化的 STW 操作。在统计期间，G1 GC 会识别完全空闲的区域和可供进行混合垃圾回收的区域。清理阶段在将空白区域重置并返回到空闲列表时为部分并发。</p>
+</li>
+</ol>
+</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/14/%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/14/%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" itemprop="url">查询优化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-14T19:45:30+08:00">
+                2019-11-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="1-慢查询基础：优化数据访问"><a href="#1-慢查询基础：优化数据访问" class="headerlink" title="1 慢查询基础：优化数据访问"></a>1 慢查询基础：优化数据访问</h3><ul>
+<li>是否访问了太多的行或者太多的列</li>
+<li>MySQL服务层是否在分析大量超过需要的数据行</li>
+</ul>
+<h4 id="1-1-是否向数据库请求了不需要的数据"><a href="#1-1-是否向数据库请求了不需要的数据" class="headerlink" title="1.1. 是否向数据库请求了不需要的数据"></a>1.1. 是否向数据库请求了不需要的数据</h4><ul>
+<li><p>查询不需要的记录</p>
+<p>在查询上加上LIMIT</p>
+</li>
+<li><p>多表关联的时候返回所有列</p>
+<p>如果想查询所有在电影Academy Dinosaur中出现的演员，千万不要按照下面的写法:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> sakila.actor</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> sakila.film_actor <span class="keyword">USING</span>(actor_id)</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> sakila.film <span class="keyword">USING</span>(film_id)</span><br><span class="line"><span class="keyword">WHERE</span> sakila.film.title = <span class="string">'Academy Dinosaur'</span></span><br></pre></td></tr></table></figure>
+
+<p>应该改为这样</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> sakila.actor.* <span class="keyword">FROM</span> sakila.actor...;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>总是取出所有列</p>
+<p>禁止select *</p>
+</li>
+<li><p>重复查询相同数据</p>
+</li>
+</ul>
+<h3 id="1-2-MySQL是否在扫描额外的记录"><a href="#1-2-MySQL是否在扫描额外的记录" class="headerlink" title="1.2 MySQL是否在扫描额外的记录"></a>1.2 MySQL是否在扫描额外的记录</h3><p><strong>衡量查询开销的三个标准</strong></p>
+<ul>
+<li>响应时间</li>
+<li>扫描行数</li>
+<li>返回行数</li>
+</ul>
+<h4 id="响应时间"><a href="#响应时间" class="headerlink" title="响应时间"></a>响应时间</h4>
           
         
       
@@ -865,6 +1807,672 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/11/%E7%B4%A2%E5%BC%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/11/%E7%B4%A2%E5%BC%95/" itemprop="url">索引</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-11T18:47:45+08:00">
+                2019-11-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="1-索引基础"><a href="#1-索引基础" class="headerlink" title="1.  索引基础"></a>1.  索引基础</h2><h3 id="1-1-索引的类型"><a href="#1-1-索引的类型" class="headerlink" title="1.1 索引的类型"></a>1.1 索引的类型</h3><ul>
+<li><p>B-Tree索引 </p>
+<p>使用B+Tree数据结构，能够加快访问数据的速度，因为存储yinq不再需要进行全表扫描来获取所需要的数据，取而代之的是从索引的根节点开始进行搜索，根节点的槽中存放了要指向子节点的指针 。</p>
+<p>叶子节点比较特殊，他们指向的是被索引的数据，而不是其他的节点页。</p>
+<p>B-Tree索引适用于全键值，键值范围或者键前缀查找，其中键前缀查找只适用于根据最左前缀的查找。</p>
+<ul>
+<li><p>全值匹配</p>
+<p>和索引中的所有列进行匹配</p>
+</li>
+<li><p>匹配最左前缀 </p>
+<p>只匹配最左边的列</p>
+</li>
+<li><p>匹配列前缀</p>
+</li>
+<li><p>匹配范围值</p>
+</li>
+<li><p>精确匹配某一列并范围匹配另外一列</p>
+</li>
+<li><p>只访问索引的查询</p>
+</li>
+</ul>
+<p>下面是一些B-Tree索引的限制。</p>
+<ul>
+<li>如果不是按照索引的最左列开始查找，则无法使用索引</li>
+<li>不能跳过索引的列</li>
+<li>如果查询中有某个列的范围查询，则其右边的所有列都无法使用索引优化查找</li>
+</ul>
+</li>
+<li><p>哈希索引</p>
+<p>哈希索引基于哈希表实现，只有精确匹配索引所有列才的查询才有效，对于每一行数据，存储 引擎都会对所有的索引计算出一个哈希码。哈希索引将对所有的哈希码存储在索引中，同时保存哈希表中保存指向每个数据行的指针。</p>
+<p><strong>在MySQL中，只有Memory引擎显示的支持哈希索引</strong></p>
+<p><strong>如果多个列的哈希值相同，那么将会以链表的方式存储在同一个哈希条目中</strong></p>
+<ul>
+<li>哈希索引只包含哈希值和行指针，而不存储字段值，所以不能使用索引中的值来避免读取行</li>
+<li>哈希索引数据并不是按照索引值顺序存储的，所以无法用于排序</li>
+<li>哈希 索引不支持部分索引列前缀查找</li>
+<li>哈希索引只支持等值比较查找 </li>
+<li>访问哈希索引的数据非常快，除非有很多哈希冲突</li>
+<li>如果哈希冲突很多的话，一些索引维护的代价也会很高</li>
+</ul>
+<h5 id="创建自定义的哈希索引"><a href="#创建自定义的哈希索引" class="headerlink" title="创建自定义的哈希索引"></a>创建自定义的哈希索引</h5><p>思路： 在B-Tree基础上创建一个伪哈希索引，用各个字段的值，生成一个哈希码，然后使用B-Tree索引这个哈希码。</p>
+</li>
+<li><p>全文索引</p>
+</li>
+</ul>
+<h3 id="2-高性能的索引策略"><a href="#2-高性能的索引策略" class="headerlink" title="## 2. 高性能的索引策略"></a>## 2. 高性能的索引策略</h3><h3 id="2-1-独立的列"><a href="#2-1-独立的列" class="headerlink" title="2.1 独立的列"></a>2.1 独立的列</h3><blockquote>
+<p>独立的列，索引列不能是表达式的一部分，也不能是函数的参数</p>
+</blockquote>
+<p>例如，下面这个就无法使用actor_id列的索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> actor_id <span class="keyword">FROM</span> sakila.actor <span class="keyword">WHERE</span> actor_id + <span class="number">1</span> = <span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-前缀索引和索引选择性"><a href="#2-2-前缀索引和索引选择性" class="headerlink" title="2.2 前缀索引和索引选择性"></a>2.2 前缀索引和索引选择性</h3><p>下面给出<strong>索引的选择性</strong>的定义:</p>
+<blockquote>
+<p>不重复的索引值和数据库表记录总数的比值，范围从1/#T到1之间</p>
+</blockquote>
+<p><strong>索引的选择性越高，则查询的效率就越高</strong></p>
+<p>MySQL不允许索引VARCHAR，TEXT，BLOB这些列的完全长度</p>
+<ul>
+<li>MySQL无法使用前缀索引做ORDER BY和GROUP BY</li>
+</ul>
+<h2 id="2-3-多列索引"><a href="#2-3-多列索引" class="headerlink" title="2.3 多列索引"></a>2.3 多列索引</h2><ul>
+<li><p>为每一个列都创建独立的索引，效果是不佳的，最多只能达到一个“一星”索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">film_actor | <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`film_actor`</span> (</span><br><span class="line">  <span class="string">`actor_id`</span> <span class="built_in">smallint</span>(<span class="number">5</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`film_id`</span> <span class="built_in">smallint</span>(<span class="number">5</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`last_update`</span> <span class="built_in">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`actor_id`</span>,<span class="string">`film_id`</span>),</span><br><span class="line">  <span class="keyword">KEY</span> <span class="string">`idx_fk_film_id`</span> (<span class="string">`film_id`</span>),</span><br><span class="line">  <span class="keyword">CONSTRAINT</span> <span class="string">`fk_film_actor_actor`</span> <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (<span class="string">`actor_id`</span>) <span class="keyword">REFERENCES</span> <span class="string">`actor`</span> (<span class="string">`actor_id`</span>) <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CASCADE</span>,</span><br><span class="line">  <span class="keyword">CONSTRAINT</span> <span class="string">`fk_film_actor_film`</span> <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (<span class="string">`film_id`</span>) <span class="keyword">REFERENCES</span> <span class="string">`film`</span> (<span class="string">`film_id`</span>) <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CASCADE</span></span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 |</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 表film_actor在字段film_id和actor_id都有一个单列索引</span></span><br><span class="line"><span class="keyword">SELECT</span> film_id, actor_id  </span><br><span class="line"><span class="keyword">FROM</span> sakila.film_actor</span><br><span class="line"><span class="keyword">WHERE</span> actor_id = <span class="number">1</span> <span class="keyword">or</span> film_id = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>  对于上面这个查询，老版本的MySQL会使用全表查询，除非改写成如下的两个查询UNION的方式</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> film_id, actor_id</span><br><span class="line"><span class="keyword">FROM</span> sakila.film_actor</span><br><span class="line"><span class="keyword">WHERE</span> actor_id = <span class="number">1</span></span><br><span class="line"><span class="keyword">UNION</span> <span class="keyword">ALL</span></span><br><span class="line"><span class="keyword">SELECT</span> film_id, actor_id</span><br><span class="line"><span class="keyword">FROM</span> sakila.film_actor</span><br><span class="line"><span class="keyword">WHERE</span> film_id = <span class="number">1</span> <span class="keyword">AND</span> actor_id &lt;&gt; <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>  但是在MySQL5.0和更新的版本中，查询能够同时使用这两个单列索引进行全表扫描，并将结果合并，这种算法有三个 变种：<strong>OR条件的联合（union）</strong>, <strong>AND条件的相交(intersection)</strong>, <strong>组合前两种情况的联合和相交</strong>,下面的查询就是使用了两个索引扫描的联合。</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; EXPLAIN SELECT film_id, actor_id</span><br><span class="line">    -&gt; FROM sakila.film_actor</span><br><span class="line">    -&gt; WHERE actor_id = 1 or film_id = 1 \G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">           id: 1</span><br><span class="line">  select_type: SIMPLE</span><br><span class="line">        table: film_actor</span><br><span class="line">   partitions: NULL</span><br><span class="line">         type: index_merge</span><br><span class="line">possible_keys: PRIMARY,idx_fk_film_id</span><br><span class="line">          key: PRIMARY,idx_fk_film_id</span><br><span class="line">      key_len: 2,2</span><br><span class="line">          ref: NULL</span><br><span class="line">         rows: 29</span><br><span class="line">     filtered: 100.00</span><br><span class="line">        Extra: Using union(PRIMARY,idx_fk_film_id); Using where</span><br><span class="line">1 row in <span class="keyword">set</span>, <span class="number">1</span> <span class="keyword">warning</span> (<span class="number">0.04</span> sec)</span><br></pre></td></tr></table></figure>
+
+<p>  索引合并策略实际上更多的说明了表上的索引建得很糟糕：</p>
+<ul>
+<li><p>当出现服务器对多个索引进行相交操作的时候，通常意味着需要一个包含所有相关列的多列索引，而不是多个独立的单列索引</p>
+</li>
+<li><p>当服务器需要对多个索引做联合操作时，通常需要耗费大量CPU和内存资源在算法的缓存、排序和合并操作上</p>
+<p>如果在EXPLAIN上看到索引的合并，应该好好检查查询和表的结构是否是最优的</p>
+</li>
+</ul>
+<h3 id="4-选择合适的索引列顺序"><a href="#4-选择合适的索引列顺序" class="headerlink" title="4. 选择合适的索引列顺序"></a>4. 选择合适的索引列顺序</h3><blockquote>
+<p>将选择性最高的列放到索引的最前列</p>
+</blockquote>
+<p>这是一个选择索引顺序的经验法则，但是只在某一些场景下面有帮助。</p>
+<p>当不需要考虑排序和分组的时候，将选择性最高的列放在前面通常是极好的，这时候索引的作用只是用于优化WHERE条件的查找。</p>
+<p>以下面的查询为例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> payment <span class="keyword">WHERE</span> staff_id = <span class="number">2</span> <span class="keyword">and</span> customer_id = <span class="number">584</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这时候应该创建一个（staff_id, customer_id)的索引还是应该颠倒一下顺序？可以查看一下哪个列的选择行更高。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT SUM(staff_id=2), SUM(customer_id=584) FROM payment;</span><br><span class="line">+<span class="comment">-----------------+----------------------+</span></span><br><span class="line">| SUM(staff_id=2) | SUM(customer_id=584) |</span><br><span class="line">+<span class="comment">-----------------+----------------------+</span></span><br><span class="line">|            7992 |                   30 |</span><br><span class="line">+<span class="comment">-----------------+----------------------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.04</span> sec)</span><br></pre></td></tr></table></figure>
+
+<p>根据前面的经验法则，应该将索引列customer_id放在前面，因为对应条件值 的customer_id数量更小，我们再来看看对于这个customer_id的条件值，对应的staff_id列的选择行如何:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT SUM(staff_id=2) FROM payment WHERE customer_id =  584;</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">| SUM(staff_id=2) |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">|              17 |</span><br><span class="line">+<span class="comment">-----------------+</span></span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+<p>这样做有 一个地方需要注意，查询的结果依赖具体指，可能对全局不公平。</p>
+<p>对于经验法则来讲，通常是考虑全局的基数和选择性:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT COUNT(DISTINCT staff_id)/COUNT(*) AS staff_id_selectivity,</span><br><span class="line">    -&gt; COUNT(DISTINCT customer_id)/COUNT(*) AS customer_id_selectivity,</span><br><span class="line">    -&gt; COUNT(*)</span><br><span class="line">    -&gt; FROM payment \G;</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">   staff_id_selectivity: 0.0001</span><br><span class="line">customer_id_selectivity: 0.0373</span><br><span class="line">               COUNT(*): 16049</span><br><span class="line">1 row in <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-5-聚簇索引"><a href="#2-5-聚簇索引" class="headerlink" title="2.5 聚簇索引"></a>2.5 聚簇索引</h3><blockquote>
+<p>聚簇索引并不是一种单独的索引类型，而是一种数据 存储方式。具体的细节依赖于其实现方式，但InnoDB的局促索引实际上在用一个结构中保存了B-Tree索引和数据行。</p>
+</blockquote>
+<p><strong>InnoDB将通过主键聚集数据，如果没有定义主键，InnoDB会选择一个唯一的非空索引代替</strong></p>
+<p>聚集的数据有一些重要的优点：</p>
+<ul>
+<li>可以把相关的数据保存在一起</li>
+<li>数据访问更快。聚簇索引将索引和数据保存在同一个B-Tree中，因此从聚簇索引中获取数据通常比在非聚簇索引中查找更快</li>
+<li>使用覆盖索引扫描的查询可以直接使用页节点中的主键值</li>
+</ul>
+<p>聚簇索引缺点：</p>
+<ul>
+<li>最大限度的提高了I/O密集型应用的性能，但如果数据全部都放在内存中，则访问的顺序也就没有那么重要了。</li>
+<li>插入速度严重依赖于插入顺序，按照主键的顺序插入是最快的，但是如果不是按照主键顺序加载数据，最后使用<strong>OPTIMIZE TABLE</strong>命令重新组织一下表。</li>
+<li>更新聚簇索引列的代价很高，会强制InnoDB将每个被更新的行移动到新的位置</li>
+<li>会导致页分裂操作，当插入新的行的时候（B+Tree）</li>
+<li>可能导致全表扫描变慢</li>
+<li>二级索引可能比想象的要大</li>
+<li>二级索引访问需要两次索引查找，而不是一次</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/10/Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BC%98%E5%8C%96/" itemprop="url">Schema与数据类型优化</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-10T18:30:33+08:00">
+                2019-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="1-选择优化的数据类型"><a href="#1-选择优化的数据类型" class="headerlink" title="1. 选择优化的数据类型"></a>1. 选择优化的数据类型</h2><p>数据类型进行选择的原则：</p>
+<ul>
+<li><p>更小的通常更好</p>
+<p>正确估计一个数据要占用多少空间，比如一个INT，如果只需要0，1两位数，那就使用TINYINT，而且UNSIGNED更好</p>
+</li>
+<li><p>简单就好</p>
+<p>如果要进行Date类型的存储，那么使用MySql内建的类型Date存储，而不是使用字符串</p>
+</li>
+<li><p>尽量避免NULL</p>
+<p>NULL会让索引的建立、和值的统计更加复杂</p>
+</li>
+</ul>
+<h3 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h3><ul>
+<li><p>TINYINT：占用空间-8位</p>
+</li>
+<li><p>SMALLINT：占用空间-16位</p>
+</li>
+<li><p>MEDIUMINT：占用空间-24位 </p>
+</li>
+<li><p>INT：占用空间-32位</p>
+</li>
+<li><p>BIGINT：占用空间-64位</p>
+<p>数据类型如果不需要负数，就选择<strong>UNSIGNED</strong>属性，可以让数字存储的上限提高一倍。</p>
+<p>MySql可以为整形类型指定宽度，例如INT（11），但是对实际上的存储并没有什么意义，也是占用那么多范围，只是用来控制显示的字符个数</p>
+</li>
+</ul>
+<h3 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h3><ul>
+<li>FLOAT：4字节</li>
+<li>DOUBLE: 8字节</li>
+<li>DECIMAL（n,m）</li>
+</ul>
+<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><ul>
+<li>VARCHAR ：变长数据类型，比CHAR更加节省内存空间，仅仅是使用必要的空间，但是因为这样，导致update的时候可能会需要做额外的工作，也要使用额外的1到两个字节去存储字符串的长度</li>
+<li>CHAR：定长的，会自动消除空格，适合用来存储密码的MD5值，因为是定长的</li>
+<li>BINARY：存储二进制字符串</li>
+<li>VARBINARY：存储二进制字符串</li>
+</ul>
+<h3 id="BLOB和TEXT类型"><a href="#BLOB和TEXT类型" class="headerlink" title="BLOB和TEXT类型"></a>BLOB和TEXT类型</h3><p>BLOB：采用二进制进行存储</p>
+<p>TEXT: 采用字符方式进行存储</p>
+<h3 id="使用枚举类型代替字符串"><a href="#使用枚举类型代替字符串" class="headerlink" title="使用枚举类型代替字符串"></a>使用枚举类型代替字符串</h3><p>  枚举类型的存储实际上是用整形存储，但是MySQL会在表的.frm文件中保存“数字-字符串”映射关系的查找表</p>
+<p>  尽量不要使用数字作为枚举常量，那会导致歧义。</p>
+<p>  枚举字段的排序是使用内部存储的整数而不是字符串来排序</p>
+<h2 id="2-数据库的三范式"><a href="#2-数据库的三范式" class="headerlink" title="2. 数据库的三范式"></a>2. 数据库的三范式</h2><ul>
+<li><p>第一范式：一个表中的每一个列必须是原子的，不能够再分成其他几列</p>
+</li>
+<li><p>第二范式：如果关系模式R满足第一范式，并且R的所有非主属性完全依赖于R的每一个候选关键属性，称R满足第二范式</p>
+</li>
+<li><p>第三范式：如果R是一个满足第一范式条件的关键模式，X是R的任意属性集，如果X非传递的依赖于R的任意一个候选关键字，称R满足第三范式</p>
+</li>
+</ul>
+<p>  <strong>码</strong></p>
+<p>  码是一个或多个属性的集合。</p>
+<p>  <strong>超码</strong></p>
+<p>  是一个或多个属性的集合，超码中的这些属性可以让我们在一个实体集中唯一地标识一个实体。</p>
+<p>  <strong>候选码</strong></p>
+<p>  候选码是极小的超码集，也就是它的任意真子集都不是超码，而他本身是超码。</p>
+<p>  <strong>主码</strong></p>
+<p>  主码是被选中用来在一个关系中区分不同元组的候选码。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/Mysql%E5%9F%BA%E7%A1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/10/Mysql%E5%9F%BA%E7%A1%80/" itemprop="url">MySQL基础</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-10T16:48:23+08:00">
+                2019-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="1-并发控制"><a href="#1-并发控制" class="headerlink" title="1 并发控制"></a>1 并发控制</h1><h2 id="1-1-锁粒度"><a href="#1-1-锁粒度" class="headerlink" title="1.1 锁粒度"></a>1.1 锁粒度</h2><ul>
+<li><p>表锁</p>
+<p>锁策略: 锁定整张表<br><strong>用户对表进行写操作（增删改) mysql会首先获取写锁，然后再阻塞其他用户的操作</strong></p>
+</li>
+<li><p>行级锁</p>
+<p>锁策略：锁定需要的行</p>
+<p>存储引擎: InnoDB, XtraDB</p>
+</li>
+</ul>
+<h2 id="1-2-事务"><a href="#1-2-事务" class="headerlink" title="1.2 事务"></a>1.2 事务</h2><ul>
+<li>A(atomicity) —— 原子性： 一个事务中，要么所有操作全部成功，要么全部回滚</li>
+<li>C(consistency) —— 一致性：数据库总是从一个一致性的状态转换到另外一个一致性的状态。</li>
+<li>I(isolation) —— 隔离性：通常来说，一个事务所做的修改在提交之前，对其他事务是不可见的</li>
+<li>D(durability) —— 持久性：一旦事务提交了，所做的修改就回永久的保存到数据库中，数据不会丢失。</li>
+</ul>
+<h3 id="1-2-1-隔离级别"><a href="#1-2-1-隔离级别" class="headerlink" title="1.2.1 隔离级别"></a>1.2.1 隔离级别</h3><ul>
+<li><p>READ UNCOMMITED（未提交读）</p>
+<p>在这个隔离级别中，即便事务中的修改没有提交，对于其他事务（线程）也是可以看到的，隔离级别是最低的，这个会导致<strong>脏读</strong>，一般不使用</p>
+</li>
+<li><p>READ COMMITED（提交读）</p>
+<p>在这个隔离级别中，如果事务进行了修改，但是没有提交，其他事务是无法读取到该事务所做的修改的，这个又叫做<strong>不可重复读（nonrepeatable read）</strong>,因为两次执行同样的查询，可能会得到不一样的结果，所以这个会导致<strong>幻读， 也就是说两次读到的结果不一样</strong>。</p>
+</li>
+<li><p>REPEATABLE READ（可重复读）</p>
+<p>一个事务执行同样的查询，即便其他事务做了修改，并且提交，但是这个事务读到的结果还是一样的，所以叫做可重复读， 但是这个依旧会导致幻读问题，比如，<strong>事务查询了一定范围内的数据，但是另外一个事务在这个范围内插入了一个数据，并且提交，这就回导致两次读取的数据不一样</strong>，<strong>这是Mysql默认的隔离级别</strong></p>
+</li>
+<li><p>SERIALIZABLE（可串行化）</p>
+<p>最高的隔离级别 ，强制事务串行执行。不建议使用</p>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 修改事务隔离级别（当前会话）</span></span><br><span class="line"><span class="keyword">SET</span> <span class="keyword">SESSION</span> <span class="keyword">TRANSACTION</span> <span class="keyword">ISOLATION</span> <span class="keyword">LEVEL</span> <span class="keyword">READ</span> COMMITTED</span><br></pre></td></tr></table></figure>
+
+<h4 id="隐式和显式锁定"><a href="#隐式和显式锁定" class="headerlink" title="隐式和显式锁定"></a>隐式和显式锁定</h4><p>InnoDB采用的是两阶段锁定协议，在事务执行的过程中，随时都可以执行锁定，锁只有在执行COMMIT或者ROLLBACK的时候才会释放，并且所以的锁都是在同一时刻释放，这是<strong><em>隐式锁定</em></strong>。</p>
+<p>InnoDB也支持显式锁定</p>
+<ul>
+<li>SELECT … LOCK IN SHARE MODE (共享锁)</li>
+<li>SELECT … FOR UPDATE （排他锁）</li>
+</ul>
+<h2 id="2-存储引擎"><a href="#2-存储引擎" class="headerlink" title="2. 存储引擎"></a>2. 存储引擎</h2><p> 查看表的信息，使用如下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SHOW TABLE STATUS LINK &apos;user&apos; \G</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-1-InnoDB存储引擎"><a href="#2-1-InnoDB存储引擎" class="headerlink" title="2.1 InnoDB存储引擎"></a>2.1 InnoDB存储引擎</h2><ul>
+<li>采用MVCC来支持高并发，实现了四个标准的隔离级别，默认是REPEATABLE READ，并且通过间隙锁策略来防止幻读的出现。间隙锁使得InnoDB不仅仅可以锁定查询涉及的行，还会对索引中的间隙进行锁定</li>
+<li>基于聚簇索引建立的</li>
+<li>支持事务，支持热备份</li>
+</ul>
+<h2 id="2-2-MyISAM"><a href="#2-2-MyISAM" class="headerlink" title="2.2 MyISAM"></a>2.2 MyISAM</h2><p>在MySql 5.1之前，是默认的存储引擎。</p>
+<ul>
+<li>不支持事务锁和行级锁</li>
+<li>不支持崩溃后的恢复</li>
+</ul>
+<h3 id="存储"><a href="#存储" class="headerlink" title="存储"></a>存储</h3><p>将表存储在两个文件中，数据文件和索引文件，分别用.MYD和.MYI为扩展名。</p>
+<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><ul>
+<li><p>加锁和并发</p>
+<p>对整张表加锁，对读取到的表加共享锁，写入的时候加排他锁</p>
+</li>
+<li><p>索引特性</p>
+<p>支持全文索引</p>
+</li>
+<li><p>延迟更新索引键</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/07/%E8%BF%90%E8%BE%93%E5%B1%82/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -907,6 +2515,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机网络</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -936,9 +2566,7 @@
       
         
           
-            <hr>
-<hr>
-<h1 id="OSI七层协议"><a href="#OSI七层协议" class="headerlink" title="OSI七层协议"></a>OSI七层协议</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">7.应用层 --&gt; 6.表示层</span><br><span class="line">6.表示层 --&gt; 5.会话层</span><br><span class="line">5.会话层 --&gt; 4.运输层 </span><br><span class="line">4.运输层 --&gt; 3.网络层</span><br><span class="line">3.网络层 --&gt; 2.数据链路层</span><br><span class="line">2.数据链路层 --&gt; 1.物理层</span><br></pre></td></tr></table></figure>
+            <h1 id="OSI七层协议"><a href="#OSI七层协议" class="headerlink" title="OSI七层协议"></a>OSI七层协议</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">7.应用层 --&gt; 6.表示层</span><br><span class="line">6.表示层 --&gt; 5.会话层</span><br><span class="line">5.会话层 --&gt; 4.运输层 </span><br><span class="line">4.运输层 --&gt; 3.网络层</span><br><span class="line">3.网络层 --&gt; 2.数据链路层</span><br><span class="line">2.数据链路层 --&gt; 1.物理层</span><br></pre></td></tr></table></figure>
 
 <h1 id="TCP-IP体系结构"><a href="#TCP-IP体系结构" class="headerlink" title="TCP/IP体系结构"></a>TCP/IP体系结构</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">graph TB</span><br><span class="line">应用层TELNET,FTP,SMTP --&gt; 运输层TCP或UDP</span><br><span class="line">运输层TCP或UDP --&gt; 网际层ip</span><br><span class="line">网际层ip --&gt; 网络接口层</span><br></pre></td></tr></table></figure>
 
@@ -1024,9 +2652,9 @@
 <ol>
 <li>无差错情况</li>
 <li>超时重传</li>
-<li>确认丢失和确认迟到<br><img src="/Users/belle/Documents/markdown%E6%96%87%E6%A1%A3/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/%E5%9B%BE%E7%89%87/image-20191107192709424.png" alt="image-20191107192709424"></li>
+<li>确认丢失和确认迟到</li>
 </ol>
-<p>![image-20191107193046860](/Users/belle/Library/Application Support/typora-user-images/image-20191107193046860.png)</p>
+<p><img src="http://i1.fuimg.com/704564/5fefe9fac383d978.png" alt="image-20191107193046860"></p>
 <ol start="4">
 <li>信道利用率<br>假设A和B之间有一条直通的信道来传送分组:<ol>
 <li>A发送分组所需要的时间是TD，显然，TD等于分组长度除以数据率。</li>
@@ -1039,7 +2667,7 @@
 </ol>
 <p>  <strong>由上可见，为了提高传输效率，发送方可以不使用 低效率的停止等待 协议 ，而是采用流水线传输。流水线传输就是发送方可连续发送多个分组 ，不必每发完一个分组就停顿下来等待对方的确认</strong></p>
 <p> 当使用流水线传输时，就需要了解<strong>连续ARQ协议</strong>和<strong>滑动窗口协议</strong></p>
-<h2 id="4-2-连续ARQ协议"><a href="#4-2-连续ARQ协议" class="headerlink" title="4.2 连续ARQ协议"></a>4.2 连续ARQ协议</h2><img src="运输层/image-20191107195051665.png" alt="image-20191107195051665" style="zoom:50%;" />
+<h2 id="4-2-连续ARQ协议"><a href="#4-2-连续ARQ协议" class="headerlink" title="4.2 连续ARQ协议"></a>4.2 连续ARQ协议</h2><img src="/2019/11/07/%E8%BF%90%E8%BE%93%E5%B1%82/image-20191107195051665.png" alt="image-20191107195051665" style="zoom:50%;">
 
 <p><strong>图a表示发送方维持的发送窗口，意义在于：位于发送窗口的5个分组都可以直接连接发送出去，无需等待对方的确认</strong></p>
 <p>图中还有一个时间坐标，分组时按照分组序号从小到大发送的</p>
@@ -1056,7 +2684,7 @@
 <li><p>不能像发送方反映出接收方已经正确收到的所有分组的信息</p>
 </li>
 </ul>
-<h2 id="5-5-TCP报文段的首部格式"><a href="#5-5-TCP报文段的首部格式" class="headerlink" title="5.5 TCP报文段的首部格式"></a>5.5 TCP报文段的首部格式</h2><p>![image-20191107195939947](/Users/belle/Library/Application Support/typora-user-images/image-20191107195939947.png)</p>
+<h2 id="5-5-TCP报文段的首部格式"><a href="#5-5-TCP报文段的首部格式" class="headerlink" title="5.5 TCP报文段的首部格式"></a>5.5 TCP报文段的首部格式</h2><p><img src="http://i1.fuimg.com/704564/a4f502b0aebb3804.png" alt="image-20191126231149602"></p>
 <p> <em>最小为20个字节，后面有4n字节是根据需要而增加的选项</em> </p>
 <ul>
 <li><p>源端口和目的端口：各占两个字节</p>
@@ -1115,10 +2743,10 @@
 </ul>
 <h3 id="6-3-选择确认SACK"><a href="#6-3-选择确认SACK" class="headerlink" title="6.3 选择确认SACK"></a>6.3 选择确认SACK</h3><blockquote>
 <ul>
-<li><input disabled="" type="checkbox"> 如果收到的报文无差错，只是未按序号，中间还 缺少一些序号的数据，那么能否设法只传送缺少的数据而不传送已经正确到达接收方的数据？</li>
+<li><input disabled type="checkbox"> 如果收到的报文无差错，只是未按序号，中间还 缺少一些序号的数据，那么能否设法只传送缺少的数据而不传送已经正确到达接收方的数据？</li>
 </ul>
 </blockquote>
-<img src="运输层/image-20191107210146526.png" alt="image-20191107210146526" style="zoom:50%;" />
+<img src="/2019/11/07/%E8%BF%90%E8%BE%93%E5%B1%82/image-20191107210146526.png" alt="image-20191107210146526" style="zoom:50%;">
 
 <p>如图片所示，序号1-1000收到了，但是序号1001-1500没有收到，接下来也是如此 。也就是说，接收方收到了和前面的字节流不连续的两个字节快，如果这些字节的序号都在接受窗口之内，那么接收方就先收下这些数据，但要把这些信息准确的告诉对方，使对方不要重复发送这些已经收到的数据</p>
 <p>和前后每一个字节块不连续的每一个字节块都有两个边界，L1 和R1，如果要使用选择确认SACK，那么必须要在TCP首部选项中加上“允许SACK”的选项，而且必须双方都商定好。由于首部选型长度最多只有40个字节，每一个边界就要用掉4个字节，由此最多只能指名4个字节块的边界信息，因为4个字节块需要用到32个字节进行描述，另外还需要 两个字节，一个字节用来指名SACK选项，另外一个指明SACK选型长度</p>
@@ -1180,7 +2808,7 @@
 <p>要求接收方不要等待自己发送数据时才携带确认，而是立即发送确认，即使收到了失序的报文段也要立即发出对已收到的 重复确认</p>
 <p>发送方只要一连收到 3个重复 确认，就立即进行快重传</p>
 </blockquote>
- <img src="运输层/image-20191108163315299.png" alt="image-20191108163315299" style="zoom:50%;" />
+ <img src="/2019/11/07/%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108163315299.png" alt="image-20191108163315299" style="zoom:50%;">
 </li>
 <li><p>快恢复算法</p>
 <blockquote>
@@ -1188,7 +2816,7 @@
 </blockquote>
 </li>
 </ul>
-<p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108162832142.png" alt="image-20191108162832142"></p>
+<p><img src="/2019/11/07/%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108162832142.png" alt="image-20191108162832142"></p>
 </li>
 </ol>
 <h2 id="9-TCP的远程连接管理"><a href="#9-TCP的远程连接管理" class="headerlink" title="9 TCP的远程连接管理"></a>9 TCP的远程连接管理</h2><p>运输连接有三个阶段:  连接建立，数据传送，连接释放</p>
@@ -1205,7 +2833,7 @@
 <li>ack：确认号，希望收到的下一个序号</li>
 <li>ACK：确认标志位，ACK=1时，ack才有效</li>
 </ul>
-<p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108165028663.png" alt="image-20191108165028663"></p>
+<p><img src="http://i1.fuimg.com/704564/3ab22e2fc510577e.png" alt="image-20191108165028663"></p>
 <ul>
 <li>一开始，B的TCP服务器先创建传输控制块TCP，准备接受客户进程的连接请求，然后服务器进程就处于LISTEN状态，等待连接</li>
 <li>A的TCP客户进程也是首先创建传输控制模块TCB，然后在打算建立TCP连接时，向B发送一个连接请求报文段，这时<strong>首部SYN=1，同时ACK=0，表明这是一个连接建立的请求</strong>, TCP规定，SYN=1时，不能携带数据，但是要<strong>消耗掉一个序号</strong>，TCP客户进程进入<strong>SYN-SENT（同步已发送）状态</strong></li>
@@ -1234,7 +2862,7 @@
 <p>所以，采用三次握手可以避免上述现象的发生</p>
 </li>
 </ol>
-<h3 id="9-2-TCP连接时释放（四次挥手）"><a href="#9-2-TCP连接时释放（四次挥手）" class="headerlink" title="9.2  TCP连接时释放（四次挥手）"></a>9.2  TCP连接时释放（四次挥手）</h3><p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108171315467.png" alt="image-20191108171315467"></p>
+<h3 id="9-2-TCP连接时释放（四次挥手）"><a href="#9-2-TCP连接时释放（四次挥手）" class="headerlink" title="9.2  TCP连接时释放（四次挥手）"></a>9.2  TCP连接时释放（四次挥手）</h3><p><img src="http://i1.fuimg.com/704564/ae9afe4469b5401f.png" alt="image-20191108171315467"></p>
 <ol>
 <li>A和B都处于<strong>ESTABLISHED状态</strong></li>
 <li>A的应用进程向TCP发出连接释放报文段，再停止发送数据，主动关闭TCP连接，A把连接释放报文段首部的<strong>终止控制位FIN置1，序号seq=u</strong>（前面已经传送过的数据的最后一个字节的序号加1）。这时A进入<strong>FIN-WAIT-1（终止等待1）状态</strong>，等待B的确认。请注意 ，FIN报文段即使不携带任何数据，也要消耗掉一个序号</li>
@@ -1256,7 +2884,7 @@
 <li>粗虚线箭头：对服务器进程的正常变迁</li>
 <li>细线箭头：异常变迁</li>
 </ul>
-<p><img src="%E8%BF%90%E8%BE%93%E5%B1%82/image-20191108173421743.png" alt="image-20191108173421743"></p>
+<p><img src="http://i1.fuimg.com/704564/b2443c2027d5dbcc.png" alt="image-20191108173421743"></p>
 
           
         
@@ -1338,7 +2966,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1349,7 +2977,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>

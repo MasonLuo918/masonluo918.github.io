@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1. 对象已死吗1.1 引用计数法 给对象添加一个计数器，当有一个地方引用，计数器的值+1，引用失效的时候，计数器的值-1  会出现的问题  当对象相互引用的时候，GC并不会回收这两个对象的内存空间  1.2 可达性分析算法 当一个对象到GC Roots没有任何引用链相连，则证明对象是不可用的  可作为GC Roots对象  虚拟机栈（栈帧中的本地变量表）引用的对象 方法区的类静态属性引用的对象">
+<meta property="og:type" content="article">
+<meta property="og:title" content="垃圾收集器和内存分配策略">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;16&#x2F;%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5&#x2F;index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="1. 对象已死吗1.1 引用计数法 给对象添加一个计数器，当有一个地方引用，计数器的值+1，引用失效的时候，计数器的值-1  会出现的问题  当对象相互引用的时候，GC并不会回收这两个对象的内存空间  1.2 可达性分析算法 当一个对象到GC Roots没有任何引用链相连，则证明对象是不可用的  可作为GC Roots对象  虚拟机栈（栈帧中的本地变量表）引用的对象 方法区的类静态属性引用的对象">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;409cdde832bed160.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;05917cdac7c70e7b.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;5ad1adce316b59c0.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;6da465385f92843a.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;2a3d78f095f97236.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;6da465385f92843a.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;72e2ddb17497953d.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;d8c9a5f8a7be50c2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;d8c9a5f8a7be50c2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;b473cf7de012e32c.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;7dded99009698d9a.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;18f7cf6ca7de36ad.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;9ea98e8beba489d4.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;3b3a1133ffdb255a.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;8cf9a3436a8d8d44.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;202fb594887e0fb9.png">
+<meta property="og:updated_time" content="2019-11-26T15:15:31.666Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;409cdde832bed160.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/11/16/垃圾收集器和内存分配策略/"/>
+
+
+
+
+
+  <title>垃圾收集器和内存分配策略 | Hexo</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Hexo</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/16/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="John Doe">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hexo">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">垃圾收集器和内存分配策略</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-16T13:53:57+08:00">
+                2019-11-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="1-对象已死吗"><a href="#1-对象已死吗" class="headerlink" title="1. 对象已死吗"></a>1. 对象已死吗</h3><h4 id="1-1-引用计数法"><a href="#1-1-引用计数法" class="headerlink" title="1.1 引用计数法"></a>1.1 引用计数法</h4><blockquote>
+<p>给对象添加一个计数器，当有一个地方引用，计数器的值+1，引用失效的时候，计数器的值-1</p>
+</blockquote>
+<p><strong>会出现的问题</strong></p>
+<ul>
+<li>当对象相互引用的时候，GC并不会回收这两个对象的内存空间</li>
+</ul>
+<h4 id="1-2-可达性分析算法"><a href="#1-2-可达性分析算法" class="headerlink" title="1.2 可达性分析算法"></a>1.2 可达性分析算法</h4><blockquote>
+<p>当一个对象到GC Roots没有任何引用链相连，则证明对象是不可用的</p>
+</blockquote>
+<p><strong>可作为GC Roots对象</strong></p>
+<ul>
+<li>虚拟机栈（栈帧中的本地变量表）引用的对象</li>
+<li>方法区的类静态属性引用的对象</li>
+<li>方法区中的常量引用的对象</li>
+<li>本地方法栈中JNI引用的对象</li>
+</ul>
+<p><strong>引用类型</strong></p>
+<ul>
+<li><p>强引用：Object obj = new Object(); 只要对象引用还存在，就不会回收掉被引用的对象</p>
+</li>
+<li><p>软引用</p>
+<p>描述一些还有用但是并非必须的对象。当<strong>系统即将发生内存溢出的时候，才会把这些对象列入回收范围之中进行第二次回收</strong>, 使用SoftReference进行软引用</p>
+</li>
+<li><p>弱引用</p>
+<p>只能<strong>存活到下一次垃圾收集之前</strong>，垃圾收集器工作，无论内存是否足够，都会回收掉, 使用WeakReference</p>
+</li>
+<li><p>虚引用</p>
+<p>被垃圾回收的时候，提供了一个系统通知</p>
+</li>
+</ul>
+<h4 id="1-3-生存还是死亡"><a href="#1-3-生存还是死亡" class="headerlink" title="1.3 生存还是死亡"></a>1.3 生存还是死亡</h4><p><img src="http://i1.fuimg.com/704564/409cdde832bed160.png" alt="image-20191116140657241"></p>
+<p><img src="http://i1.fuimg.com/704564/05917cdac7c70e7b.png" alt="image-20191116140725241"></p>
+<h4 id="1-4-回收方法区（永久代）"><a href="#1-4-回收方法区（永久代）" class="headerlink" title="1.4 回收方法区（永久代）"></a>1.4 回收方法区（永久代）</h4><ul>
+<li><p>在方法区中进行垃圾收集的性价比一般都比较低</p>
+</li>
+<li><p>垃圾收集主要回收两部分内容:</p>
+<ol>
+<li><p>废弃常量</p>
+</li>
+<li><p>无用的类</p>
+<p><strong>判定是否是无用的类</strong></p>
+<ol>
+<li>该类的所有实例都已经进行回收 </li>
+<li>加载该类的ClassLoader已经被回收</li>
+<li>该类对应的Java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射进行访问</li>
+</ol>
+</li>
+</ol>
+</li>
+</ul>
+<p><strong><em>在大量使用反射，动态代理的虚拟机必须具备类卸载功能</em></strong></p>
+<h3 id="2-垃圾回收算法"><a href="#2-垃圾回收算法" class="headerlink" title="2. 垃圾回收算法"></a>2. 垃圾回收算法</h3><h4 id="2-1-标记-清除算法（Mark-sweep"><a href="#2-1-标记-清除算法（Mark-sweep" class="headerlink" title="2.1 标记-清除算法（Mark-sweep)"></a>2.1 标记-清除算法（Mark-sweep)</h4><blockquote>
+<p><strong>首先标记出所有需要回收的对象，在标记完成后统一进行回收所有被标记的对象</strong></p>
+</blockquote>
+<p>会出现的问题：</p>
+<ol>
+<li>效率问题：标记和清除两个过程效率都不高</li>
+<li>空间问题：会产生大量不连续的碎片，空间碎片太多可能会导致以后找不到足够的连续内存而触发下一次的GC</li>
+</ol>
+<h4 id="2-2-复制算法"><a href="#2-2-复制算法" class="headerlink" title="2.2 复制算法"></a>2.2 复制算法</h4><p><strong>为了解决标记清楚算法的效率问题出现的</strong></p>
+<blockquote>
+<p>将内存容量划分为大小相等的两块，每次只使用其中一块，当这一块内存用完了，就将还存活的对象复制到另外一块上面，然后再把已经使用过的内存空间一次性全部清除</p>
+</blockquote>
+<p><strong>不足之处：</strong></p>
+<blockquote>
+<p>划分为1:1对两个空间，代价会比较大</p>
+</blockquote>
+<p><strong>完善：</strong></p>
+<blockquote>
+<p>将内存划分为一块较大的Eden区和两块块比较小的Survivor区域，HotSpot虚拟机默认大小比例为8:1， 当发生GC的时候，将Survivor和Eden区域中 存活的对象一次性复制到另外一块Survivor区域中，然后清理掉。</p>
+<p><strong>当Survivor空间不够用的时候，需要依赖其他内存（老年代）进行分配担保。</strong></p>
+<p><strong>分配担保机制</strong>:如果另外一块Survivor空间没有足够的空间存放上一次新生代收集下来的存活对象，这些对象将直接通过分配担保机制进入老年代</p>
+</blockquote>
+<h4 id="2-3-标记-整理算法"><a href="#2-3-标记-整理算法" class="headerlink" title="2.3 标记-整理算法"></a>2.3 标记-整理算法</h4><p>老年代一般不能直接使用复制算法，因为老年代没有额外的空间进行分配担保</p>
+<blockquote>
+<p>标记整理算法，与标记清楚算法一样，但是后续步骤是让所有存活的对象都向一端移动，然后直接清理掉边界以外的内存</p>
+</blockquote>
+<h4 id="2-4-分代收集算法"><a href="#2-4-分代收集算法" class="headerlink" title="2.4 分代收集算法"></a>2.4 分代收集算法</h4><blockquote>
+<p>根据内存的存活周期划分Java堆为新生代和老年代，然后根据不同的特点采用不同的回收算法</p>
+</blockquote>
+<h3 id="3-HotSpot算法的实现"><a href="#3-HotSpot算法的实现" class="headerlink" title="3. HotSpot算法的实现"></a>3. HotSpot算法的实现</h3><h4 id="3-1-枚举根节点"><a href="#3-1-枚举根节点" class="headerlink" title="3.1 枚举根节点"></a>3.1 枚举根节点</h4><ul>
+<li><p>作为GC Roots的节点在很多应用中都有数百兆，如果逐个进行检查，会消耗很多时间</p>
+</li>
+<li><p>可达性分析的GC停顿:分析工作必须在一个能确保一致性的快照中进行，也就是说，开始分析的时候，对象的引用关系不能还在不断的变化，Sun称这些事为<strong>Stop the Word</strong></p>
+</li>
+<li><p>准确式GC</p>
+<p>当执行的系统停顿下来后，并不需要一个不漏的检查完所有执行上下文和对象的引用，虚拟机应高有办法得知哪些地方存放着对象的引用，HotSpot中，使用<strong>一组</strong>成为OopMap的数据结构来达到这个母的</p>
+<p> OopMap</p>
+<blockquote>
+<p>一个线程意味着一个栈，一个栈中有多个栈帧（方法调用的时候用来存储局部变量表，操作数栈，动态链接，方法出口信息），一个方法里面可能有多个安全点。 gc 发生时，程序首先运行到最近的一个安全点停下来，然后更新自己的 OopMap ，记下栈上哪些位置代表着引用。枚举根节点时，递归遍历每个栈帧的 OopMap ，通过栈中记录的被引用对象的内存地址，即可找到这些对象（ GC Roots ）。</p>
+</blockquote>
+</li>
+<li><p>安全点</p>
+<p>是否具有让程序长时间执行的额特征</p>
+<ul>
+<li>方法调用</li>
+<li>循环跳转</li>
+<li>异常跳转</li>
+</ul>
+<p><strong>如何让所有的线程跑到最近的安全点再停顿</strong></p>
+<ol>
+<li><p>抢先式中断</p>
+<p>GC发生的时候，将所有的线程中断，如果发现线程不在安全点，那么就恢复线程，让线程运行到安全点</p>
+</li>
+<li><p>主动式中断</p>
+<p>GC需要中断线程的时候，不直接对线程进行操作，仅仅是简单的设置一个标志，各个线程执行时再去轮巡这个标志，发现中断标志位真时就自己中断挂起（轮询的地方和安全点事重合的）。</p>
+</li>
+</ol>
+</li>
+<li><p>安全区域</p>
+<p>在一段代码中，引用关系不会发生变化。  </p>
+<p>线程执行到Safe Region中的代码的时候，首先标识自己已经进入了Safe Region，那样，在这段时间里JVM要发起GC时，就不用管标识自己位Safe Region状态的线程，在线程要离开Safe Region的时候，它要检查系统是否已经完成了GC，如果完成，线程继续执行，否则，等待直到收到可以安全离开的信号为止</p>
+</li>
+</ul>
+<h3 id="2-5-垃圾回收器"><a href="#2-5-垃圾回收器" class="headerlink" title="2.5 垃圾回收器"></a>2.5 垃圾回收器</h3><p><img src="http://i1.fuimg.com/704564/5ad1adce316b59c0.png" alt="image-20191116145608601"></p>
+<p><strong>并发垃圾收集和并行垃圾收集</strong></p>
+<blockquote>
+<p>（A）、并行（Parallel）</p>
+<p>​    指多条垃圾收集线程并行工作，但此时用户线程仍然处于等待状态；</p>
+<p>​    如ParNew、Parallel Scavenge、Parallel Old；</p>
+<p>（B）、并发（Concurrent）</p>
+<p>​    指用户线程与垃圾收集线程同时执行（但不一定是并行的，可能会交替执行）；</p>
+<p>   用户程序在继续运行，而垃圾收集程序线程运行于另一个CPU上；  </p>
+<p>​    如CMS、G1（也有并行）；</p>
+</blockquote>
+<p><strong>Minor GC 和 Full GC</strong>. </p>
+<blockquote>
+<p>A）、Minor GC</p>
+<p>​    又称新生代GC，指发生在新生代的垃圾收集动作；</p>
+<p>​    因为Java对象大多是朝生夕灭，所以Minor GC非常频繁，一般回收速度也比较快；</p>
+<p>（B）、Full GC</p>
+<p>​    又称Major GC或老年代GC，指发生在老年代的GC；</p>
+<p>​    出现Full GC经常会伴随至少一次的Minor GC（不是绝对，Parallel Sacvenge收集器就可以选择设置Major GC策略）；</p>
+<p>   Major GC速度一般比Minor GC慢10倍以上；</p>
+</blockquote>
+<ul>
+<li><p>收集器:</p>
+<ol>
+<li><p>Serial收集器</p>
+<blockquote>
+<ol>
+<li><p>特点：</p>
+<ul>
+<li>针对新生代</li>
+<li>采用复制算法</li>
+<li>暂停所有的用户线程</li>
+<li>使用一条线程进行垃圾收集</li>
+</ul>
+</li>
+<li><p>应用场景</p>
+<ul>
+<li>单CPU的环境，可获得最高效率</li>
+<li>可用内存不大，就能在较短时间完成垃圾收集</li>
+</ul>
+</li>
+<li><p>设置参数</p>
+<p>“-XX: +UseSerialGC”</p>
+</li>
+</ol>
+<p><img src="http://i1.fuimg.com/704564/6da465385f92843a.png" alt="image-20191116150551881"></p>
+</blockquote>
+</li>
+<li><p>ParNew收集器</p>
+<blockquote>
+<p><strong>Serial收集器的多线程版本</strong></p>
+<ol>
+<li><p>特点</p>
+<ul>
+<li><p>除了多线程外，其余的行为、特点和Serial收集器一样；</p>
+<p>   如Serial收集器可用控制参数、收集算法、Stop The World、内存分配规则、回收策略等</p>
+</li>
+<li><p>唯一能与CMS配合工作的多线程收集器(Serial也行，但是单线程，Serial Old为老年代)</p>
+</li>
+</ul>
+</li>
+<li><p>设置参数:</p>
+<ul>
+<li><p>“-XX:+UseConcMarkSweepGC”：指定使用CMS后，会默认使用ParNew作为新生代收集器；</p>
+</li>
+<li><p>“-XX:+UseParNewGC”：强制指定使用ParNew；  </p>
+</li>
+<li><p>“-XX:ParallelGCThreads”：指定垃圾收集的线程数量，ParNew默认开启的收集线程与CPU的数量相同；</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><img src="http://i1.fuimg.com/704564/2a3d78f095f97236.png" alt="image-20191116151054966"></p>
+</blockquote>
+</li>
+<li><p>Parallel Scavenge收集器(并行清除，新生代)</p>
+<blockquote>
+<ol>
+<li><p>特点</p>
+<ul>
+<li><p>关注点是达到一个可控制的吞吐量</p>
+<p>$吞吐量= 运行用户代码时间 /（运行用户代码时间 + 垃圾收集时间）$</p>
+<ol>
+<li><p>控制最大垃圾收集时间: -XX:MaxGCPauseMillis</p>
+<p>收集器将尽可能的保证内存回收花费的时间不超过设定值，不过并不是越小越好，GC停顿时间缩短是以牺牲吞吐量和新生代空间来换取的： <strong>系统将新生代调小一点，收集300M新生代肯定比500M快，但是也导致垃圾收集发生得更频繁</strong></p>
+</li>
+<li><p>直接设置吞吐量大小:-XX:GCTimeRatio</p>
+<p>一个大于0但是小于100的数，也就是垃圾收集时间占总时间的比率，相当于吞吐量的倒数。如果参数设置为19，那允许最大的GC时间就占总时间的5%，(1 / (1 + 99)),默认值为99</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>参数</p>
+<ul>
+<li>-XX:+UseAdptiveSizePolicy”: 开启这个参数之后，新生代的大小（-Xmn）、Eden与Survivor区的比例（-XX:SurvivorRation）、晋升老年代的对象年龄（-XX:PretenureSizeThreshold）等不用手动指定,值得推荐，因为: <ol>
+<li>只需设置好内存数据大小（如”-Xmx”设置最大堆）</li>
+<li>然后使用”-XX:MaxGCPauseMillis”或”-XX:GCTimeRatio”给JVM设置一个优化目标</li>
+<li>那些具体细节参数的调节就由JVM自适应完成；    </li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>Serial Old收集器</p>
+<blockquote>
+<ol>
+<li><p>应用场景</p>
+<ul>
+<li>在JDK1.5及之前，与Parallel Scavenge收集器搭配使用（JDK1.6有Parallel Old收集器可搭配）</li>
+<li>作为CMS收集器的后备预案，在并发收集发生Concurrent Mode Failure时使用（后面详解</li>
+</ul>
+<p><img src="http://i1.fuimg.com/704564/6da465385f92843a.png" alt="image-20191116152753468"></p>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>Parallel Old收集器</p>
+<p><img src="http://i1.fuimg.com/704564/72e2ddb17497953d.png" alt="image-20191116152850462"></p>
+</li>
+<li><p>CMS收集器（老年代）</p>
+<blockquote>
+<p><a href="https://www.jianshu.com/p/2a1b2f17d3e4" target="_blank" rel="noopener">https://www.jianshu.com/p/2a1b2f17d3e4</a> 引用占小狼</p>
+<h5 id="周期性Old-GC过程"><a href="#周期性Old-GC过程" class="headerlink" title="周期性Old GC过程"></a>周期性Old GC过程</h5><p><img src alt="image-20191116164820356"></p>
+<p>对象在标记过程中，根据标记的情况，分为三类:</p>
+<ol>
+<li>白色对象，表示自身未被标记</li>
+<li>灰色对象，表示自身被标记，但是内部引用未被处理</li>
+<li>黑色对象，表示自身被标记，内部引用都被处理</li>
+</ol>
+<p><img src="http://i1.fuimg.com/704564/d8c9a5f8a7be50c2.png" alt="image-20191116165049093"></p>
+<p>假设一开始，Java堆的对象分布如下：</p>
+<img src="http://i1.fuimg.com/704564/d8c9a5f8a7be50c2.png" alt="image-20191116165049093" style="zoom:50%;">
+
+<ol>
+<li><p>InitialMarking(初始化标记，整个过程STW)</p>
+<p>单线程执行，分为两步：</p>
+<ol>
+<li>标记GC Roots可达到的老年代对象</li>
+<li>遍历新生代对象，标记可达的老年代对象</li>
+</ol>
+<p>过程结束后，对象分布如下：</p>
+<p><img src="http://i1.fuimg.com/704564/b473cf7de012e32c.png" alt="image-20191116165254717"></p>
+</li>
+<li><p>Marking（并发标记）</p>
+<p>该阶段<strong>GC线程</strong>和应用线程并发执行，遍历InitialMarking阶段出来的存活对象，然后继续递归标记这些对象可达的对象</p>
+<p>但是这里会有一个小问题出现：<strong>因为该阶段是并发执行的，在运行期间可能发生<em>新生代的对象晋升老年代</em>、<em>在老年代分配对象</em>、<em>更新老年代对象的引用关系</em>等，这些都是需要进行重新标记的，否则就会出现漏标</strong></p>
+<p>为了提高重新标记的效率，该阶段会把上述对象所在的Card标识为Dirty，（Card，将老年代空间划分为一个一个Card）后续只需要扫描这些Dirty的对象</p>
+<p><img src="http://i1.fuimg.com/704564/7dded99009698d9a.png" alt="image-20191116165717096"></p>
+<ol start="3">
+<li><p><strong>Precleaning（预清理）</strong></p>
+<p>通过参数$\color{red}{CMSPreCleaningEnabled}$，选择关闭这个阶段，默认启用，主要做两件事情</p>
+<ol>
+<li>处理新生代已经发现的引用，比如在并发阶段，在Eden区中分配了一个A对象，A对象引用了一个老年代对象B（这个B之前没有被标记），在这个阶段就会标记B为活跃对象</li>
+<li>在并发标记阶段，如果老年代中有对象内部引用发生变化，会把所在的Card标记为Dirty，通过扫描这些Table，重新标记那些在并发阶段引用被更新的对象</li>
+</ol>
+</li>
+<li><p>AbortablePreclean（可中断的预清理）</p>
+<p>发生的前提：新生代Eden区中的内存大于参数$\color{red}{CMSScheduleRemarkEdenSizeThreshold}$</p>
+<p>，默认为2M，如果新生代对象太少，就没有必要执行这个阶段</p>
+<p><strong>为什么需要这个阶段？</strong></p>
+<p>CMS GC的终极目标是降低垃圾回收时的暂停时间，所以在该阶段要尽最大的努力去处理那些在并发阶段被应用线程更新的老年代对象，这样在暂停的重新标记阶段就可以少处理一些，暂停时间就会相对降低</p>
+<p>在该阶段，主要循环的<strong>两件事</strong></p>
+<ol>
+<li>处理From和To区对象，标记可达的老年代对象</li>
+<li>和上一个阶段一样，扫描处理Dirty Card中的对象</li>
+</ol>
+<p>打断这个循环的条件有三个：</p>
+<ol>
+<li>设置最多循环的次数$\color{red}{CMSMaxAbortablePrecleanLoops}$,默认为0，意思是没有循环次数限制</li>
+<li>如果执行这个逻辑的时间达到了阈值$\color{red}{CMSAbortablePrecleanTime}$，默认时5s，会退出循环</li>
+<li>如果新生代Eden区内存使用率达到了阈值$\color{red}{CMSScheduleRemarkEdenPenetration}$,默认为50%，会退出循环</li>
+</ol>
+<p>如果在循环退出之前，发生了一次YGC，对于后面的Remark阶段来说，大大减轻了扫描年轻代的负担，但是这是<strong>不可控的</strong></p>
+</li>
+<li><p>FinalMarking(并发重新标记，STW)</p>
+<p>该阶段并发执行，在之前的并行阶段，可能会产生新的引用关系如下：</p>
+<ol>
+<li>老年代的对象被GC Roots引用</li>
+<li>老年代的未标记对象被新生代对象引用</li>
+<li>老年代已标记的对象增加新引用指向其他老年代的其他对象</li>
+<li>新生代对象指向老年代引用被删除</li>
+<li>其他</li>
+</ol>
+<p>上述有一些情况可能会在Precleaning和AbortablePreclean阶段被处理过，但总存在没有来得及处理的，所以还有以下的处理：</p>
+<ol>
+<li>遍历新生代对象，重新标记</li>
+<li>根据GC Roots，重新标记</li>
+<li>遍历老年代的Dirty Card，重新标记，这里的Dirty Card大部分已经在clean阶段处理过了</li>
+</ol>
+<p>如果之前恰巧发生了一次YGC，那么效率会提高很多</p>
+<p>CMS提供了一个参数：$\color{red}{CMSScavengeBeforeRemark}$,默认没有开启，如果开启了这个参数，在最终标记执行之前，会强制YGC</p>
+</li>
+<li><p>并发清理</p>
+</li>
+</ol>
+</li>
+</ol>
+</blockquote>
+</li>
+<li><p>G1收集器</p>
+<blockquote>
+<ul>
+<li><p>启用G1收集器: +XX:+UserG1GC</p>
+</li>
+<li><p>堆内存结构</p>
+<ol>
+<li><p>以往的垃圾回收算法</p>
+<p><img src="http://i1.fuimg.com/704564/18f7cf6ca7de36ad.png" alt="image-20191116183341625"></p>
+<ul>
+<li>新生代：eden space + 2个survivor</li>
+<li>老年代：old space</li>
+</ul>
+</li>
+<li><p>在G1算法中，采用另外一种完全不同的方式组织堆内存，堆内存被划分为大小相等的内存块(Region),每个Region时逻辑连续的一段内存，如下图:</p>
+<p><img src="http://i1.fuimg.com/704564/9ea98e8beba489d4.png" alt="image-20191116183658977"></p>
+<p>其中，H是以往算法中没有的，它代表了Humongous，这表示了这些Region存储的是巨型对象，当新建对象大小超过Region的大小一半的时候，直接在一个新的或者多个连续的region中分配，并标记为H</p>
+</li>
+</ol>
+</li>
+<li><p>Region</p>
+<p>堆内存中的一个Region的大小可以通过$\color{red}{-XX:G1HeapRegionSize}$参数来指定，大小区间只能是1M，2M，2的幂次方</p>
+</li>
+<li><p>GC模式</p>
+<ul>
+<li><p>young gc</p>
+<table>
+<thead>
+<tr>
+<th align="center">参数</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">-XX:MaxGCPauseMillis</td>
+<td align="center">设置G1收集过程目标时间，默认值200ms</td>
+</tr>
+<tr>
+<td align="center">-XX:G1NewSizePercent</td>
+<td align="center">新生代最小值，默认值5%</td>
+</tr>
+<tr>
+<td align="center">-XX:G1MaxNewSizePercent</td>
+<td align="center">新生代最大值，默认值60%</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>mixed gc</p>
+<p>混合GC，回收一部分old region，全部的young region</p>
+<p>触发条件：</p>
+<p>XX:InitiatingHeapOccupancyPercent,当老年代大小占整个堆大小百分比达到该阈值，会触发一次mixed gc</p>
+</li>
+<li><p>full gc</p>
+<p>老年代被填满，触发full fc， G1的full gc算法就是单线程执行的serial old gc</p>
+</li>
+</ul>
+</li>
+<li><p>RSet</p>
+<p>每个Region初始化时，会初始化一个remember set，该集合用来追踪其他Region指向该Region的引用。每个Region按照默认的512KB划分为多个Card，所以RSet需要记录的东西应该是xxRegion的xxCard。</p>
+<p><img src="http://i1.fuimg.com/704564/3b3a1133ffdb255a.png" alt="image-20191116185243861"></p>
+<ul>
+<li><p>好处：</p>
+<p>如果Region1有根对象A引用了region2对象B，显然B是活的，如果没有Rset，就需要扫描整个Region1和其他Region，才能确定B是活的。</p>
+</li>
+</ul>
+</li>
+<li><p>对象分配策略</p>
+<ol>
+<li>TLAB线程本地分配缓冲区</li>
+<li>Eden区中分配</li>
+<li>Humongous分配</li>
+</ol>
+<p>TLAB为线程本地分配缓冲区，它的目的是为了使对象尽快的分配出来，如果对象在一个共享的空间中分配，我们需要采用一些同步机制来管理这些空间内的空闲空间指针，在Eden空间中，每一个线程都有一个固定的分区用来分配对象，即一个TLAB。</p>
+<p>对TLAB空间中无法分配的对象，会尝试在Eden控制中分配</p>
+<p>如果Eden中无法分配，那么只能在老年代中进行分配空间</p>
+</li>
+<li><p>G1 YoungGC</p>
+<p>主要是对Eden区进行GC，在Eden空间耗尽的时候会被触发，在这种情况下，Eden空间的数据移动到Survivor空间中，如果Survivor空间不够，Eden空间的部分数据会直接晋升到老年代空间，Survivor区的数据移动到新的Survivor区中，也有部分直接晋升到老年代中，最终Eden空间的数据为空，GC停止工作。</p>
+<p><img src="http://i1.fuimg.com/704564/8cf9a3436a8d8d44.png" alt="image-20191116191359101"></p>
+<p><strong>如果仅仅GC新生代对象，我们如何找到所有的根对象呢？老年代所有对象都是根吗？那样扫描下来会耗费大量的时间</strong>，于是，G1引入了RSet概念 ，作用是跟踪指向某个heap区内的对象引用</p>
+<p><img src="http://i1.fuimg.com/704564/202fb594887e0fb9.png" alt="image-20191116191556413"></p>
+<p>Young GC 阶段：</p>
+<ul>
+<li>阶段1：根扫描<br>静态和本地对象被扫描</li>
+<li>阶段2：更新RS<br>处理dirty card队列更新RS</li>
+<li>阶段3：处理RS<br>检测从年轻代指向年老代的对象</li>
+<li>阶段4：对象拷贝<br>拷贝存活的对象到survivor/old区域</li>
+<li>阶段5：处理引用队列<br>软引用，弱引用，虚引用处理</li>
+</ul>
+</li>
+<li><p>G1 Mix GC</p>
+<p>在进行Mix GC之前，会进行global concurrent marking</p>
+<ol>
+<li><p>初始标记（initial mark，STW）（第一次暂停所以应用线程）<br>  在此阶段，G1 GC 对根进行标记。该阶段与常规的 (STW) 年轻代垃圾回收密切相关。</p>
+</li>
+<li><p>根区域扫描（root region scan）<br>  G1 GC 在初始标记的存活区扫描对老年代的引用，并标记被引用的对象。该阶段与应用程序（非 STW）同时运行，并且只有完成该阶段后，才能开始下一次 STW 年轻代垃圾回收。</p>
+</li>
+<li><p>并发标记（Concurrent Marking）<br>  G1 GC 在整个堆中查找可访问的（存活的）对象。该阶段与应用程序同时运行，可以被 STW 年轻代垃圾回收中断</p>
+</li>
+<li><p>最终标记（Remark，STW）（第二次暂停所以应用线程）<br> 该阶段是 STW 回收，帮助完成标记周期。G1 GC 清空 SATB 缓冲区，跟踪未被访问的存活对象，并执行引用处理。</p>
+</li>
+<li><p>清除垃圾（Cleanup，STW）（第三次暂停所以应用线程）<br>  在这个最后阶段，G1 GC 执行统计和 RSet 净化的 STW 操作。在统计期间，G1 GC 会识别完全空闲的区域和可供进行混合垃圾回收的区域。清理阶段在将空白区域重置并返回到空闲列表时为部分并发。</p>
+</li>
+</ol>
+</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/14/%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" rel="next" title="查询优化">
+                <i class="fa fa-chevron-left"></i> 查询优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" rel="prev" title="类加载机制">
+                类加载机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">John Doe</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-对象已死吗"><span class="nav-number">1.</span> <span class="nav-text">1. 对象已死吗</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-1-引用计数法"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 引用计数法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-可达性分析算法"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 可达性分析算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-生存还是死亡"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 生存还是死亡</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-4-回收方法区（永久代）"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 回收方法区（永久代）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-垃圾回收算法"><span class="nav-number">2.</span> <span class="nav-text">2. 垃圾回收算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-标记-清除算法（Mark-sweep"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 标记-清除算法（Mark-sweep)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-2-复制算法"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 复制算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-3-标记-整理算法"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 标记-整理算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-4-分代收集算法"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 分代收集算法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-HotSpot算法的实现"><span class="nav-number">3.</span> <span class="nav-text">3. HotSpot算法的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-枚举根节点"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 枚举根节点</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-垃圾回收器"><span class="nav-number">4.</span> <span class="nav-text">2.5 垃圾回收器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#周期性Old-GC过程"><span class="nav-number">4.0.1.</span> <span class="nav-text">周期性Old GC过程</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">John Doe</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
