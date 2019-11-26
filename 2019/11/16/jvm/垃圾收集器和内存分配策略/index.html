@@ -82,8 +82,8 @@
 <meta name="description" content="1. 对象已死吗1.1 引用计数法 给对象添加一个计数器，当有一个地方引用，计数器的值+1，引用失效的时候，计数器的值-1  会出现的问题  当对象相互引用的时候，GC并不会回收这两个对象的内存空间  1.2 可达性分析算法 当一个对象到GC Roots没有任何引用链相连，则证明对象是不可用的  可作为GC Roots对象  虚拟机栈（栈帧中的本地变量表）引用的对象 方法区的类静态属性引用的对象">
 <meta property="og:type" content="article">
 <meta property="og:title" content="垃圾收集器和内存分配策略">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;16&#x2F;%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5&#x2F;index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;16&#x2F;jvm&#x2F;%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5&#x2F;index.html">
+<meta property="og:site_name" content="Masonluo">
 <meta property="og:description" content="1. 对象已死吗1.1 引用计数法 给对象添加一个计数器，当有一个地方引用，计数器的值+1，引用失效的时候，计数器的值-1  会出现的问题  当对象相互引用的时候，GC并不会回收这两个对象的内存空间  1.2 可达性分析算法 当一个对象到GC Roots没有任何引用链相连，则证明对象是不可用的  可作为GC Roots对象  虚拟机栈（栈帧中的本地变量表）引用的对象 方法区的类静态属性引用的对象">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http:&#x2F;&#x2F;i1.fuimg.com&#x2F;704564&#x2F;409cdde832bed160.png">
@@ -134,13 +134,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/11/16/垃圾收集器和内存分配策略/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/11/16/jvm/垃圾收集器和内存分配策略/"/>
 
 
 
 
 
-  <title>垃圾收集器和内存分配策略 | Hexo</title>
+  <title>垃圾收集器和内存分配策略 | Masonluo</title>
   
 
 
@@ -170,7 +170,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Hexo</span>
+        <span class="site-title">Masonluo</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -267,16 +267,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/16/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/16/jvm/%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E5%92%8C%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="Masonluo">
       <meta itemprop="description" content="">
       <meta itemprop="image" content="/images/avatar.gif">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="Masonluo">
     </span>
 
     
@@ -808,7 +808,7 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/11/14/%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" rel="next" title="查询优化">
+              <a href="/2019/11/14/MySQL/%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96/" rel="next" title="查询优化">
                 <i class="fa fa-chevron-left"></i> 查询优化
               </a>
             
@@ -818,7 +818,7 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/11/17/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" rel="prev" title="类加载机制">
+              <a href="/2019/11/17/jvm/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" rel="prev" title="类加载机制">
                 类加载机制 <i class="fa fa-chevron-right"></i>
               </a>
             
@@ -886,8 +886,8 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <p class="site-author-name" itemprop="name">John Doe</p>
-              <p class="site-description motion-element" itemprop="description"></p>
+              <p class="site-author-name" itemprop="name">Masonluo</p>
+              <p class="site-description motion-element" itemprop="description">白了少年头</p>
           </div>
 
           <nav class="site-state motion-element">
@@ -967,7 +967,7 @@
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">John Doe</span>
+  <span class="author" itemprop="copyrightHolder">Masonluo</span>
 
   
 </div>
