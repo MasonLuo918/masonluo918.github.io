@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="算法," />
 
 
 
@@ -79,14 +79,15 @@
 
 
 
-<meta name="description" content="1. 选择优化的数据类型数据类型进行选择的原则：  更小的通常更好 正确估计一个数据要占用多少空间，比如一个INT，如果只需要0，1两位数，那就使用TINYINT，而且UNSIGNED更好  简单就好 如果要进行Date类型的存储，那么使用MySql内建的类型Date存储，而不是使用字符串  尽量避免NULL NULL会让索引的建立、和值的统计更加复杂   整数类型 TINYINT：占用空间-8位">
+<meta name="description" content="给你一根长度为n的绳子，请把绳子建成m段（m、n都是整数，并且m &amp;gt; 1), 每段绳子的长度记为k[0],k[1],k[2],k[3],请问他们相乘的最大长度是多少？例如，绳子为18的时候可以切为2，3，3三段，此时得到的最大乘积是18    动态规划解法  如果满足四个条件，则可用动态规划解题  求一个问题的最优解 整体问题的最优解以来各个子问题的最优解 大问题可以分解成若干个小问题，这">
+<meta name="keywords" content="算法">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Schema与数据类型优化">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;10&#x2F;MySQL&#x2F;Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BC%98%E5%8C%96&#x2F;index.html">
+<meta property="og:title" content="面试题14-剪绳子">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;27&#x2F;%E7%AE%97%E6%B3%95&#x2F;%E5%89%91%E6%8C%87offer&#x2F;%E9%9D%A2%E8%AF%95%E9%A2%9814-%E5%89%AA%E7%BB%B3%E5%AD%90&#x2F;index.html">
 <meta property="og:site_name" content="Masonluo">
-<meta property="og:description" content="1. 选择优化的数据类型数据类型进行选择的原则：  更小的通常更好 正确估计一个数据要占用多少空间，比如一个INT，如果只需要0，1两位数，那就使用TINYINT，而且UNSIGNED更好  简单就好 如果要进行Date类型的存储，那么使用MySql内建的类型Date存储，而不是使用字符串  尽量避免NULL NULL会让索引的建立、和值的统计更加复杂   整数类型 TINYINT：占用空间-8位">
+<meta property="og:description" content="给你一根长度为n的绳子，请把绳子建成m段（m、n都是整数，并且m &amp;gt; 1), 每段绳子的长度记为k[0],k[1],k[2],k[3],请问他们相乘的最大长度是多少？例如，绳子为18的时候可以切为2，3，3三段，此时得到的最大乘积是18    动态规划解法  如果满足四个条件，则可用动态规划解题  求一个问题的最优解 整体问题的最优解以来各个子问题的最优解 大问题可以分解成若干个小问题，这">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-11-26T15:16:28.528Z">
+<meta property="og:updated_time" content="2019-11-27T01:58:52.280Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -117,13 +118,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/11/10/MySQL/Schema与数据类型优化/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/11/27/算法/剑指offer/面试题14-剪绳子/"/>
 
 
 
 
 
-  <title>Schema与数据类型优化 | Masonluo</title>
+  <title>面试题14-剪绳子 | Masonluo</title>
   
 
 
@@ -250,7 +251,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/10/MySQL/Schema%E4%B8%8E%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%BC%98%E5%8C%96/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/27/%E7%AE%97%E6%B3%95/%E5%89%91%E6%8C%87offer/%E9%9D%A2%E8%AF%95%E9%A2%9814-%E5%89%AA%E7%BB%B3%E5%AD%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Masonluo">
@@ -267,7 +268,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Schema与数据类型优化</h1>
+          <h1 class="post-title" itemprop="name headline">面试题14-剪绳子</h1>
         
 
         <div class="post-meta">
@@ -279,8 +280,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-10T18:30:33+08:00">
-                2019-11-10
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-27T09:55:56+08:00">
+                2019-11-27
               </time>
             
 
@@ -302,8 +303,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
+                  <a href="/categories/%E5%89%91%E6%8C%87offer/" itemprop="url" rel="index">
+                    <span itemprop="name">剑指offer</span>
                   </a>
                 </span>
 
@@ -339,64 +340,35 @@
       
 
       
-        <h2 id="1-选择优化的数据类型"><a href="#1-选择优化的数据类型" class="headerlink" title="1. 选择优化的数据类型"></a>1. 选择优化的数据类型</h2><p>数据类型进行选择的原则：</p>
-<ul>
-<li><p>更小的通常更好</p>
-<p>正确估计一个数据要占用多少空间，比如一个INT，如果只需要0，1两位数，那就使用TINYINT，而且UNSIGNED更好</p>
-</li>
-<li><p>简单就好</p>
-<p>如果要进行Date类型的存储，那么使用MySql内建的类型Date存储，而不是使用字符串</p>
-</li>
-<li><p>尽量避免NULL</p>
-<p>NULL会让索引的建立、和值的统计更加复杂</p>
-</li>
-</ul>
-<h3 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h3><ul>
-<li><p>TINYINT：占用空间-8位</p>
-</li>
-<li><p>SMALLINT：占用空间-16位</p>
-</li>
-<li><p>MEDIUMINT：占用空间-24位 </p>
-</li>
-<li><p>INT：占用空间-32位</p>
-</li>
-<li><p>BIGINT：占用空间-64位</p>
-<p>数据类型如果不需要负数，就选择<strong>UNSIGNED</strong>属性，可以让数字存储的上限提高一倍。</p>
-<p>MySql可以为整形类型指定宽度，例如INT（11），但是对实际上的存储并没有什么意义，也是占用那么多范围，只是用来控制显示的字符个数</p>
-</li>
-</ul>
-<h3 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h3><ul>
-<li>FLOAT：4字节</li>
-<li>DOUBLE: 8字节</li>
-<li>DECIMAL（n,m）</li>
-</ul>
-<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><ul>
-<li>VARCHAR ：变长数据类型，比CHAR更加节省内存空间，仅仅是使用必要的空间，但是因为这样，导致update的时候可能会需要做额外的工作，也要使用额外的1到两个字节去存储字符串的长度</li>
-<li>CHAR：定长的，会自动消除空格，适合用来存储密码的MD5值，因为是定长的</li>
-<li>BINARY：存储二进制字符串</li>
-<li>VARBINARY：存储二进制字符串</li>
-</ul>
-<h3 id="BLOB和TEXT类型"><a href="#BLOB和TEXT类型" class="headerlink" title="BLOB和TEXT类型"></a>BLOB和TEXT类型</h3><p>BLOB：采用二进制进行存储</p>
-<p>TEXT: 采用字符方式进行存储</p>
-<h3 id="使用枚举类型代替字符串"><a href="#使用枚举类型代替字符串" class="headerlink" title="使用枚举类型代替字符串"></a>使用枚举类型代替字符串</h3><p>  枚举类型的存储实际上是用整形存储，但是MySQL会在表的.frm文件中保存“数字-字符串”映射关系的查找表</p>
-<p>  尽量不要使用数字作为枚举常量，那会导致歧义。</p>
-<p>  枚举字段的排序是使用内部存储的整数而不是字符串来排序</p>
-<h2 id="2-数据库的三范式"><a href="#2-数据库的三范式" class="headerlink" title="2. 数据库的三范式"></a>2. 数据库的三范式</h2><ul>
-<li><p>第一范式：一个表中的每一个列必须是原子的，不能够再分成其他几列</p>
-</li>
-<li><p>第二范式：如果关系模式R满足第一范式，并且R的所有非主属性完全依赖于R的每一个候选关键属性，称R满足第二范式</p>
-</li>
-<li><p>第三范式：如果R是一个满足第一范式条件的关键模式，X是R的任意属性集，如果X非传递的依赖于R的任意一个候选关键字，称R满足第三范式</p>
-</li>
-</ul>
-<p>  <strong>码</strong></p>
-<p>  码是一个或多个属性的集合。</p>
-<p>  <strong>超码</strong></p>
-<p>  是一个或多个属性的集合，超码中的这些属性可以让我们在一个实体集中唯一地标识一个实体。</p>
-<p>  <strong>候选码</strong></p>
-<p>  候选码是极小的超码集，也就是它的任意真子集都不是超码，而他本身是超码。</p>
-<p>  <strong>主码</strong></p>
-<p>  主码是被选中用来在一个关系中区分不同元组的候选码。</p>
+        <blockquote>
+<p>给你一根长度为n的绳子，请把绳子建成m段（m、n都是整数，并且m &gt; 1), 每段绳子的长度记为k[0],k[1],k[2],k[3],请问他们相乘的最大长度是多少？例如，绳子为18的时候可以切为2，3，3三段，此时得到的最大乘积是18</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>动态规划解法</p>
+</blockquote>
+<p>如果满足四个条件，则可用动态规划解题</p>
+<ol>
+<li>求一个问题的最优解</li>
+<li>整体问题的最优解以来各个子问题的最优解</li>
+<li>大问题可以分解成若干个小问题，这些小问题之间还有相互重叠的更小的子问题</li>
+<li>从上往下分析问题，从下往上求解问题</li>
+</ol>
+<p>求解思路：一条长度为n绳子，如果想要剪一刀的话，则有n-1种选择，所以，f(n)=max(f(i) * f(n - i))，其中 1 &lt; i &lt; n</p>
+<p>这是一个从上而下的递推公式，我们从下往上计算，用一个一维数组记录下最优解，因为绳子长为1，2，3的时候，我们可以直接return，但是当绳子&gt;3的时候，小于3的部分局部最优解是1，2，3，也就是不进行切割。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">public static int maxProductAfterCutting_dynamic_programming(int length)&#123;</span><br><span class="line">       // 如果是2、3的话，直接返回</span><br><span class="line">       if(length &lt; 2)&#123;</span><br><span class="line">           return 0;</span><br><span class="line">       &#125;</span><br><span class="line">       if(length == 2)&#123;</span><br><span class="line">           return 1;</span><br><span class="line">       &#125;</span><br><span class="line">       if(length == 3)&#123;</span><br><span class="line">           return 2;</span><br><span class="line">       &#125;</span><br><span class="line">       int[] products = new int[length + 1];</span><br><span class="line">       // 当绳子局部长度为1，2，3  不切就是最优</span><br><span class="line">       products[0] = 0;</span><br><span class="line">       products[1] = 1;</span><br><span class="line">       products[2] = 2;</span><br><span class="line">       products[3] = 3;</span><br><span class="line"></span><br><span class="line">       int max = 0;</span><br><span class="line">       for(int i = 4; i &lt;= length; i++)&#123;</span><br><span class="line">           max = 0;</span><br><span class="line">           for(int j = 1; j &lt;= i / 2; j++)&#123;</span><br><span class="line">               int product = products[j] * products[i - j];</span><br><span class="line">               if(max &lt; product)</span><br><span class="line">                   max = product;</span><br><span class="line">           &#125;</span><br><span class="line">           products[i] = max;</span><br><span class="line">       &#125;</span><br><span class="line">       max = products[length];</span><br><span class="line">       return max;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>时间复杂度：O（n^2）<br><br>空间复杂度: O (n)</p>
+<hr>
+<blockquote>
+<p>贪心算法</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public static int maxProductAfterCutting_greed(int length)&#123;</span><br><span class="line">        if(length &lt; 2)&#123;</span><br><span class="line">            return 0;</span><br><span class="line">        &#125;</span><br><span class="line">        if(length == 2)&#123;</span><br><span class="line">            return 1;</span><br><span class="line">        &#125;</span><br><span class="line">        if(length == 3)&#123;</span><br><span class="line">            return 2;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        // 尽可能多的剪去长度为3的字段</span><br><span class="line">        int timeOf3 = length / 3;</span><br><span class="line">        // 当绳子最后剩下的长度为4， 不能再剪长度为3的绳子段</span><br><span class="line">        if(length - timeOf3 * 3 == 1)&#123;</span><br><span class="line">            timeOf3 -=1;</span><br><span class="line">        &#125;</span><br><span class="line">        int timeOf2 = (length - timeOf3 * 3) / 2;</span><br><span class="line">        return (int)(Math.pow(3, timeOf3)) * (int)(Math.pow(2, timeOf2));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>贪心算法的基本思路是从问题的某一个初始解出发一步一步地进行，根据某个优化测度，每一步都要确保能获得局部最优解。每一步只考虑一个数据，他的选取应该满足局部优化的条件。若下一个数据和部分最优解连在一起不再是可行解时，就不把该数据添加到部分解中，直到把所有数据枚举完，或者不能再添加算法停止</p>
+</blockquote>
+<p>当n&gt;=5的时候，我们可以证明2（n-2）&gt;n &amp;&amp; 3(n-3)&gt;n.也就是说，当绳子剩下的长度大于或者等于5的时候，我们就把它剪成长度为3或者2的绳子段，另外，当n&gt;=5时，3(n-3)&gt;=2(n-2),因此我们应该尽可能的多剪长度为3的绳子.</p>
 
       
     </div>
@@ -412,6 +384,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          
+        </div>
+      
 
       
       
@@ -421,8 +399,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/11/10/MySQL/Mysql%E5%9F%BA%E7%A1%80/" rel="next" title="MySQL基础">
-                <i class="fa fa-chevron-left"></i> MySQL基础
+              <a href="/2019/11/27/%E7%AE%97%E6%B3%95/%E5%89%91%E6%8C%87offer/%E9%9D%A2%E8%AF%95%E9%A2%9813-%E6%9C%BA%E5%99%A8%E4%BA%BA%E7%9A%84%E8%BF%90%E5%8A%A8%E8%8C%83%E5%9B%B4/" rel="next" title="面试题13-机器人的运动范围">
+                <i class="fa fa-chevron-left"></i> 面试题13-机器人的运动范围
               </a>
             
           </div>
@@ -430,10 +408,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/11/11/MySQL/%E7%B4%A2%E5%BC%95/" rel="prev" title="索引">
-                索引 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -485,17 +459,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -559,22 +524,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-选择优化的数据类型"><span class="nav-number">1.</span> <span class="nav-text">1. 选择优化的数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#整数类型"><span class="nav-number">1.1.</span> <span class="nav-text">整数类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实数类型"><span class="nav-number">1.2.</span> <span class="nav-text">实数类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#字符串类型"><span class="nav-number">1.3.</span> <span class="nav-text">字符串类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLOB和TEXT类型"><span class="nav-number">1.4.</span> <span class="nav-text">BLOB和TEXT类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用枚举类型代替字符串"><span class="nav-number">1.5.</span> <span class="nav-text">使用枚举类型代替字符串</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-数据库的三范式"><span class="nav-number">2.</span> <span class="nav-text">2. 数据库的三范式</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
